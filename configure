@@ -1,0 +1,3 @@
+#!/bin/bash
+
+apt install python3-dev default-libmysqlclient-dev build-essential
