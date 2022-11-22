@@ -1,3 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
-apt install cron python3-dev default-libmysqlclient-dev build-essential
+apt update
+apt install -y cron python3-dev default-libmysqlclient-dev build-essential

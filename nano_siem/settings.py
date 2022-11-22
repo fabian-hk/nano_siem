@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_crontab',
     'web',
-    'plugins',
 ]
 
 MIDDLEWARE = [
@@ -135,7 +134,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Cronjob configuration
 CRONJOBS = [
-    ('* * * * *', 'plugins.traefik.run', '>> /home/fabian/cronjobs.log')
+    ('*/1 * * * *', 'cron.cronjob.cronjob', '>> /home/NanoSiem/crontab.log 2>&1')
 ]
 
 # Logging configuration
@@ -168,12 +167,17 @@ LOGGING = {
         'plugins': {
             'handlers': ['console'],
             'level': os.getenv('PLUGINS_LOG_LEVEL', 'INFO'),
-            'propagate': True,
+            'propagate': False,
+        },
+        'cron': {
+            'handlers': ['console'],
+            'level': os.getenv('CRON_LOG_LEVEL', 'INFO'),
+            'propagate': False,
         },
         'web': {
             'handlers': ['console'],
             'level': os.getenv('WEB_LOG_LEVEL', 'INFO'),
-            'propagate': True,
+            'propagate': False,
         }
     },
 }

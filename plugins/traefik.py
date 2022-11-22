@@ -8,20 +8,16 @@ import logging
 
 import random
 
-# LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
-# logging.basicConfig(level=LOG_LEVEL, format="%(asctime)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
-
 # Prepare Django framework to make database transaction
-#os.environ["DJANGO_SETTINGS_MODULE"] = "nano_siem.settings"
-#django.setup()
+# os.environ["DJANGO_SETTINGS_MODULE"] = "nano_siem.settings"
+# django.setup()
 
 logger = logging.getLogger(__name__)
-#logger.setLevel(logging.DEBUG)
+# logger.setLevel(logging.DEBUG)
 
 from web.models import Service, ServiceLog
 from plugins.utils import str_to_int
 
-log_file = Path(os.getenv("TRAEFIK_SERVICE_LOG_PATH"))
 name = os.getenv('TRAEFIK_SERVICE_NAME', "Traefik")
 
 
@@ -33,6 +29,7 @@ def setup():
 def run():
     logger.info(f"Start logging for {name} job")
     service = Service.objects.get(name=name)
+    log_file = Path(service.log_path)
     with log_file.open("rt") as f:
         i = 0
         for i, line in enumerate(f):
