@@ -12,6 +12,8 @@ services:
       - MYSQL_PASSWORD=wLzLQHR8tni5VKdar4dVPkAR3CIv0l
       - MYSQL_HOST=nano_siem_db
       - TRAEFIK_SERVICE_NAME=Traefik
+      - TRAEFIK_SERVICE_LOG_PATH=/var/log/access.log
+      - PLUGINS_LOG_LEVEL=DEBUG
     ports:
       - 127.0.0.1:8000:8000
     volumes:

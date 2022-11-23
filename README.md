@@ -13,6 +13,7 @@ after a review.
 
 ```bash
 TRAEFIK_SERVICE_NAME=Traefik
+TRAEFIK_SERVICE_LOG_PATH=/var/log/access.log
 ```
 
 ## Database

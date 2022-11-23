@@ -7,3 +7,4 @@ class Service(models.Model):
     log_position = models.BigIntegerField()
     log_path = models.TextField()
     modification_time = models.DateTimeField(auto_now=True)
+    running = models.BooleanField(default=False)
