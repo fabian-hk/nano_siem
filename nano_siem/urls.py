@@ -15,9 +15,10 @@ Including another URLconf
 """
 # from django.contrib import admin
 from django.urls import path
-from web.map_view import map_view
+from web.map_views import overview_map_view, detailed_map_view
 
 urlpatterns = [
     #    path('admin/', admin.site.urls),
-    path("map/", map_view, name="map"),
+    path("map/", overview_map_view, name="Overview Map"),
+    path("map/detailed/", detailed_map_view, name="Detailed Map")
 ]

@@ -23,6 +23,7 @@ services:
     user: 1000:1000
     volumes:
       - $PWD/../nano_siem_data/database:/var/lib/mysql
+    command: --innodb-buffer-pool-size=5G --key-buffer-size=1G
     environment:
       - MARIADB_USER=NanoSiem
       - MARIADB_DATABASE=NanoSiem
