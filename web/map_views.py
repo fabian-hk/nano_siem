@@ -1,4 +1,5 @@
 import logging
+from django.shortcuts import render
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from folium import Map, Marker
@@ -33,18 +34,39 @@ def overview_map_view(request):
 
 
 class MarkerPoint:
-    def __init__(self, longitude=0.0, latitude=0.0):
+    def __init__(self, longitude=None, latitude=None):
         self.longitude = longitude
         self.latitude = latitude
         self.entries = 1
+
         self.ips = []
-        self.longitudes = []
-        self.latitudes = []
+        self.http_statuses = []
+        self.requested_services = []
         self.events = []
+        self.user_agents = []
+        self.city_names = []
+        self.country_names = []
+
+    def fill_data(self, log_line: ServiceLog):
+        self.ips.append(log_line.ip)
+        self.http_statuses.append(log_line.http_status)
+        self.requested_services.append(log_line.requested_service)
+        self.events.append(log_line.event)
+        self.user_agents.append(log_line.user_agent)
+        self.city_names.append(log_line.city_name)
+        self.country_names.append(log_line.country_name)
 
     def pop_up(self):
         limit_show = 20
-        variables = {"table_list": zip(self.ips[:limit_show], self.longitudes[:limit_show], self.latitudes[:limit_show], self.events[:limit_show])}
+        variables = {"table_list": zip(
+            self.ips[:limit_show],
+            self.http_statuses[:limit_show],
+            self.requested_services[:limit_show],
+            self.events[:limit_show],
+            self.user_agents[:limit_show],
+            self.city_names[:limit_show],
+            self.country_names[:limit_show]
+        )}
         return render_to_string("detailed_map_view_table.html", variables)
 
     def __repr__(self):
@@ -73,10 +95,7 @@ def detailed_map_view(request):
         if log_line.longitude and log_line.latitude:
             marker_point = MarkerPoint(log_line.longitude, log_line.latitude)
             if marker_point == prev_marker_point:
-                prev_marker_point.ips.append(log_line.ip)
-                prev_marker_point.longitudes.append(log_line.longitude)
-                prev_marker_point.latitudes.append(log_line.latitude)
-                prev_marker_point.events.append(log_line.event)
+                prev_marker_point.fill_data(log_line)
                 prev_marker_point.entries += 1
             else:
                 if prev_marker_point != MarkerPoint():
@@ -85,13 +104,8 @@ def detailed_map_view(request):
                         popup=prev_marker_point.pop_up(),
                         tooltip=prev_marker_point.entries).add_to(marker_cluster)
 
-                marker_point.ips.append(log_line.ip)
-                marker_point.longitudes.append(log_line.longitude)
-                marker_point.latitudes.append(log_line.latitude)
-                marker_point.events.append(log_line.event)
-
+                marker_point.fill_data(log_line)
                 prev_marker_point = marker_point
-
     if prev_marker_point != MarkerPoint():
         Marker(
             location=(prev_marker_point.longitude, prev_marker_point.latitude),
@@ -100,4 +114,5 @@ def detailed_map_view(request):
 
     logger.debug(f"Time to load {i} data points: {time.time() - t1}s")
 
-    return HttpResponse(folium_map._repr_html_())
+    context = {"map": folium_map._repr_html_()}
+    return render(request, "detailed_map_view.html", context=context)
