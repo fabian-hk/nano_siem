@@ -2,10 +2,11 @@ import logging
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.template.loader import render_to_string
+from django.utils.timezone import make_aware
 from folium import Map, Marker
 from folium.plugins import FastMarkerCluster, MarkerCluster
 import time
-import datetime
+from datetime import datetime, timedelta
 
 from .models import Service, ServiceLog
 
@@ -15,21 +16,14 @@ logger = logging.getLogger(__name__)
 # Create your views here.
 def overview_map_view(request):
     logger.info("Loading overview map...")
-    start_coords = (65.01236, 25.46816)
-    folium_map = Map(location=start_coords, zoom_start=14)
-    tooltip = "Click me!"
+    start_coords = (48.78232, 9.17702)
+    folium_map = Map(location=start_coords, zoom_start=4)
 
     t1 = time.time()
-    markers = [[l.longitude, l.latitude] for l in ServiceLog.objects.all()]
+    markers = [[l["longitude"], l["latitude"]] for l in ServiceLog.objects.values("longitude", "latitude")]
     FastMarkerCluster(markers).add_to(folium_map)
-    logger.debug(f"Time to load log data: {time.time() - t1}s")
-    # for log_line in ServiceLog.objects.all()[:100000]:
-    #    Marker(
-    #        location=(log_line.longitude, log_line.latitude),
-    #        radius=5,
-    #        fill_opacity=0.9,
-    #        popup="<h1>More info coming soon...</h1>",
-    #        tooltip=tooltip).add_to(marker_cluster)
+    logger.debug(f"Time to load {len(markers)} data points: {time.time() - t1}s")
+
     return HttpResponse(folium_map._repr_html_())
 
 
@@ -83,15 +77,31 @@ class MarkerPoint:
 
 
 def detailed_map_view(request):
-    logger.info("Loading detailed map...")
+    time_format_str = "%Y-%m-%d"
+    date_range = int(request.GET.get("date_range", "0"))
+    if date_range == 0:
+        start_date_default = datetime.today() - timedelta(days=7)
+        start_date_str = request.GET.get("start_date", start_date_default.strftime(time_format_str))
+        end_date_str = request.GET.get("end_date", datetime.today().strftime(time_format_str))
+        start_date = make_aware(datetime.strptime(start_date_str, time_format_str))
+        end_date = make_aware(datetime.strptime(end_date_str, time_format_str))
+    else:
+        start_date = datetime.today() - timedelta(days=date_range)
+        start_date_str = start_date.strftime(time_format_str)
+        start_date = make_aware(start_date)
+        end_date = datetime.today()
+        end_date_str = end_date.strftime(time_format_str)
+        end_date = make_aware(end_date)
+
+    logger.info(f"Loading detailed map from {start_date_str} to {end_date_str}")
+
     start_coords = (48.78232, 9.17702)
     folium_map = Map(location=start_coords, zoom_start=4)
     t1 = time.time()
-    date = datetime.date(2021, 7, 1)
     marker_cluster = MarkerCluster().add_to(folium_map)
     prev_marker_point = MarkerPoint()
     i = 0
-    for i, log_line in enumerate(ServiceLog.objects.all().order_by("longitude", "latitude")):
+    for i, log_line in enumerate(ServiceLog.objects.filter(timestamp__gte=start_date, timestamp__lte=end_date).order_by("longitude", "latitude")):
         if log_line.longitude and log_line.latitude:
             marker_point = MarkerPoint(log_line.longitude, log_line.latitude)
             if marker_point == prev_marker_point:
@@ -114,5 +124,9 @@ def detailed_map_view(request):
 
     logger.debug(f"Time to load {i} data points: {time.time() - t1}s")
 
-    context = {"map": folium_map._repr_html_()}
+    context = {
+        "map": folium_map._repr_html_(),
+        "start_date": start_date_str,
+        "end_date": end_date_str,
+    }
     return render(request, "detailed_map_view.html", context=context)
