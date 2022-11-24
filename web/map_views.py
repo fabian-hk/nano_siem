@@ -88,13 +88,13 @@ class MarkerPoint:
 def detailed_map_view(request):
     logger.info("Loading detailed map...")
     start_coords = (65.01236, 25.46816)
-    folium_map = Map(location=start_coords, zoom_start=14)
-    tooltip = "Click me!"
+    folium_map = Map(location=start_coords, zoom_start=4)
     t1 = time.time()
     date = datetime.date(2021, 7, 1)
-    marker_points = []
+    marker_cluster = MarkerCluster().add_to(folium_map)
     prev_marker_point = MarkerPoint()
-    for log_line in ServiceLog.objects.all().order_by("longitude", "latitude"):
+    i = 0
+    for i, log_line in enumerate(ServiceLog.objects.all().order_by("longitude", "latitude")):
         marker_point = MarkerPoint(log_line.longitude, log_line.latitude)
         if marker_point == prev_marker_point:
             prev_marker_point.ips.append(log_line.ip)
@@ -103,20 +103,19 @@ def detailed_map_view(request):
             prev_marker_point.events.append(log_line.event)
             prev_marker_point.entries += 1
         else:
+            if prev_marker_point != MarkerPoint():
+                Marker(
+                    location=(prev_marker_point.longitude, prev_marker_point.latitude),
+                    popup=prev_marker_point.pop_up(),
+                    tooltip=prev_marker_point.entries).add_to(marker_cluster)
+
             marker_point.ips.append(log_line.ip)
             marker_point.longitudes.append(log_line.longitude)
             marker_point.latitudes.append(log_line.latitude)
             marker_point.events.append(log_line.event)
-            marker_points.append(marker_point)
-            prev_marker_point = marker_point
-    logger.debug(f"Time to load {len(marker_points)} data points: {time.time() - t1}s")
 
-    t1 = time.time()
-    marker_cluster = MarkerCluster().add_to(folium_map)
-    for marker_point in marker_points:
-        Marker(
-            location=(marker_point.longitude, marker_point.latitude),
-            popup=marker_point.pop_up(),
-            tooltip=marker_point.entries).add_to(marker_cluster)
-    logger.debug(f"Time to create markers: {time.time() - t1}s")
+            prev_marker_point = marker_point
+
+    logger.debug(f"Time to load {i} data points: {time.time() - t1}s")
+
     return HttpResponse(folium_map._repr_html_())
