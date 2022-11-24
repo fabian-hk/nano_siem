@@ -1,0 +1,20 @@
+<table style="display: block; height: 100px; overflow: auto;">
+    <thead>
+        <tr>
+            <td style="background: white; position: sticky; top: 0;">IP</td>
+            <td style="background: white; position: sticky; top: 0; padding-left: 10px;">Longitude</td>
+            <td style="background: white; position: sticky; top: 0; padding-left: 10px;">Latitude</td>
+            <td style="background: white; position: sticky; top: 0; padding-left: 10px;">Event</td>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in table_list %}
+        <tr>
+            <td>{{ i.0 }}</td>
+            <td style="padding-left: 10px;">{{ i.1 }}</td>
+            <td style="padding-left: 10px;">{{ i.2 }}</td>
+            <td style="padding-left: 10px;">{{ i.3 }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

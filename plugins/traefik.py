@@ -8,7 +8,7 @@ import logging
 import random
 
 from web.models import Service, ServiceLog
-from plugins.utils import str_to_int
+from plugins.utils import str_to_int, ip_to_coordinates
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +25,7 @@ def run(name, log_path):
         service = Service(
             name=name,
             type="traefik",
-            log_position=0,
+            log_position=-1,
             log_path=log_path,
             running=True
         )
@@ -60,8 +60,7 @@ def run(name, log_path):
                         user_agent = data[9]
                         http_status = str_to_int(data[6])
                         content_size = str_to_int(data[7])
-                        longitude = 65.01236 + random.randint(-40, 40)
-                        latitude = 25.46816 + random.randint(-40, 40)
+                        (longitude, latitude) = ip_to_coordinates(ip)
                         country_name = "Finland"
                         city_name = "Oulu"
                         autonomous_system_organization = "<PLACEHOLDER>"
@@ -86,7 +85,8 @@ def run(name, log_path):
                             is_tor=False
                         )
                         log_line.save()
-                    except:
+                    except Exception as e:
+                        print(e)
                         logger.error(f"Could not parse log line {i} for job {name}, line: {line}")
                     # print(datetime.fromtimestamp(timestamp))
                     if i % 1000 == 0:

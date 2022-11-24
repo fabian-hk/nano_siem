@@ -16,6 +16,13 @@ TRAEFIK_SERVICE_NAME=Traefik
 TRAEFIK_SERVICE_LOG_PATH=/var/log/access.log
 ```
 
+## IP Address to Coordinate Config
+
+```bash
+GEOLITE2_CITY_DB_PATH=/var/data/GeoLite2-City.mmdb
+PRIVATE_IP_COORDINATES=65.01236,25.46816
+```
+
 ## Database
 
 ```bash

@@ -1,5 +1,6 @@
 import logging
 from django.http import HttpResponse
+from django.template.loader import render_to_string
 from folium import Map, Marker
 from folium.plugins import FastMarkerCluster, MarkerCluster
 import time
@@ -42,35 +43,9 @@ class MarkerPoint:
         self.events = []
 
     def pop_up(self):
-        html = """
-            <table style="display: block; height: 100px; overflow: auto;">
-            <thead>
-                <tr>
-                    <td style="background: white; position: sticky; top: 0;">IP</td>
-                    <td style="background: white; position: sticky; top: 0; padding-left: 10px;">Longitude</td>
-                    <td style="background: white; position: sticky; top: 0; padding-left: 10px;">Latitude</td>
-                    <td style="background: white; position: sticky; top: 0; padding-left: 10px;">Event</td>
-                </tr>
-            </thead>
-            <tbody>
-        """
         limit_show = 20
-        for (ip, longitude, latitude, event) in zip(self.ips[:limit_show], self.longitudes[:limit_show], self.latitudes[:limit_show], self.events[:limit_show]):
-            row = f"""
-                <tr>
-                    <td>{ip}</td>
-                    <td style="padding-left: 10px;">{'{:.4f}'.format(longitude)}</td>
-                    <td style="padding-left: 10px;">{'{:.4f}'.format(latitude)}</td>
-                    <td style="padding-left: 10px;">{event}</td>
-                </tr>
-            """
-            html += row
-        end = """
-            </tbody>
-        </table>  
-        """
-        html += end
-        return html
+        variables = {"table_list": zip(self.ips[:limit_show], self.longitudes[:limit_show], self.latitudes[:limit_show], self.events[:limit_show])}
+        return render_to_string("detailed_map_view_table.html", variables)
 
     def __repr__(self):
         return f"({self.longitude}, {self.latitude})"
@@ -87,7 +62,7 @@ class MarkerPoint:
 
 def detailed_map_view(request):
     logger.info("Loading detailed map...")
-    start_coords = (65.01236, 25.46816)
+    start_coords = (48.78232, 9.17702)
     folium_map = Map(location=start_coords, zoom_start=4)
     t1 = time.time()
     date = datetime.date(2021, 7, 1)
@@ -95,26 +70,33 @@ def detailed_map_view(request):
     prev_marker_point = MarkerPoint()
     i = 0
     for i, log_line in enumerate(ServiceLog.objects.all().order_by("longitude", "latitude")):
-        marker_point = MarkerPoint(log_line.longitude, log_line.latitude)
-        if marker_point == prev_marker_point:
-            prev_marker_point.ips.append(log_line.ip)
-            prev_marker_point.longitudes.append(log_line.longitude)
-            prev_marker_point.latitudes.append(log_line.latitude)
-            prev_marker_point.events.append(log_line.event)
-            prev_marker_point.entries += 1
-        else:
-            if prev_marker_point != MarkerPoint():
-                Marker(
-                    location=(prev_marker_point.longitude, prev_marker_point.latitude),
-                    popup=prev_marker_point.pop_up(),
-                    tooltip=prev_marker_point.entries).add_to(marker_cluster)
+        if log_line.longitude and log_line.latitude:
+            marker_point = MarkerPoint(log_line.longitude, log_line.latitude)
+            if marker_point == prev_marker_point:
+                prev_marker_point.ips.append(log_line.ip)
+                prev_marker_point.longitudes.append(log_line.longitude)
+                prev_marker_point.latitudes.append(log_line.latitude)
+                prev_marker_point.events.append(log_line.event)
+                prev_marker_point.entries += 1
+            else:
+                if prev_marker_point != MarkerPoint():
+                    Marker(
+                        location=(prev_marker_point.longitude, prev_marker_point.latitude),
+                        popup=prev_marker_point.pop_up(),
+                        tooltip=prev_marker_point.entries).add_to(marker_cluster)
 
-            marker_point.ips.append(log_line.ip)
-            marker_point.longitudes.append(log_line.longitude)
-            marker_point.latitudes.append(log_line.latitude)
-            marker_point.events.append(log_line.event)
+                marker_point.ips.append(log_line.ip)
+                marker_point.longitudes.append(log_line.longitude)
+                marker_point.latitudes.append(log_line.latitude)
+                marker_point.events.append(log_line.event)
 
-            prev_marker_point = marker_point
+                prev_marker_point = marker_point
+
+    if prev_marker_point != MarkerPoint():
+        Marker(
+            location=(prev_marker_point.longitude, prev_marker_point.latitude),
+            popup=prev_marker_point.pop_up(),
+            tooltip=prev_marker_point.entries).add_to(marker_cluster)
 
     logger.debug(f"Time to load {i} data points: {time.time() - t1}s")
 
