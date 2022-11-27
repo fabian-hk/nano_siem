@@ -60,10 +60,8 @@ def run(name, log_path):
                         user_agent = data[9]
                         http_status = str_to_int(data[6])
                         content_size = str_to_int(data[7])
-                        (longitude, latitude) = ip_to_coordinates(ip)
-                        country_name = "Finland"
-                        city_name = "Oulu"
-                        autonomous_system_organization = "<PLACEHOLDER>"
+                        (longitude, latitude, city_name, country_name,
+                         autonomous_system_organization) = ip_to_coordinates(ip)
 
                         log_line = ServiceLog(
                             timestamp=timestamp,
