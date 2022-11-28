@@ -13,6 +13,7 @@
     <tbody>
         {% for i in table_list %}
         <tr>
+            {% autoescape on %}
             <td>{{ i.0 }}</td>
             <td style="padding-left: 10px;">{{ i.1 }}</td>
             <td style="padding-left: 10px;">{{ i.2 }}</td>
@@ -20,6 +21,7 @@
             <td style="padding-left: 10px;">{{ i.4 }}</td>
             <td style="padding-left: 10px;">{{ i.5 }}</td>
             <td style="padding-left: 10px;">{{ i.6 }}</td>
+            {% endautoescape %}
         </tr>
         {% endfor %}
     </tbody>

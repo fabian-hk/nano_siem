@@ -20,7 +20,7 @@ TRAEFIK_SERVICE_LOG_PATH=/var/log/access.log
 
 ```bash
 GEOLITE2_PATH=/var/data
-PRIVATE_IP_LOCATION_INFO=65.01236,25.46816,Oulu,Finland,DNA
+PRIVATE_IP_LOCATION_INFO=65.01236,25.46816,Oulu,Finland,DNA 
 ```
 
 ## Database

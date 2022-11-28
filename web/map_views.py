@@ -20,7 +20,7 @@ def overview_map_view(request):
     folium_map = Map(location=start_coords, zoom_start=4)
 
     t1 = time.time()
-    markers = [[l["longitude"], l["latitude"]] for l in ServiceLog.objects.values("longitude", "latitude")]
+    markers = [[l["longitude"], l["latitude"]] for l in ServiceLog.objects.filter(longitude__isnull=False, latitude__isnull=False).order_by("-timestamp").values("longitude", "latitude")[:3000000]]
     FastMarkerCluster(markers).add_to(folium_map)
     logger.debug(f"Time to load {len(markers)} data points: {time.time() - t1}s")
 
@@ -45,8 +45,8 @@ class MarkerPoint:
         self.ips.append(log_line.ip)
         self.http_statuses.append(log_line.http_status)
         self.requested_services.append(log_line.requested_service)
-        self.events.append(log_line.event)
-        self.user_agents.append(log_line.user_agent)
+        self.events.append(log_line.event.replace("{", "<BRACKETS>").replace("}", "<BRACKETS>"))
+        self.user_agents.append(log_line.user_agent.replace("{", "<BRACKETS>").replace("}", "<BRACKETS>"))
         self.city_names.append(log_line.city_name)
         self.country_names.append(log_line.country_name)
 
