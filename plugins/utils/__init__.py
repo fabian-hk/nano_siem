@@ -52,3 +52,7 @@ def ip_to_coordinates(input: str) -> Tuple[float, float, str, str, str]:
     except (ValueError, AddressNotFoundError) as e:
         logger.error(f"Error getting coordinates: {e}")
         return None, None, None, None, None
+
+
+def is_tor_exit_node(ip: str) -> bool:
+    pass
