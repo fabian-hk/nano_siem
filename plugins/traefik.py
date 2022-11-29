@@ -5,8 +5,6 @@ import shlex
 from datetime import datetime
 import logging
 
-import random
-
 from web.models import Service, ServiceLog
 from plugins.utils import str_to_int, ip_to_coordinates
 
@@ -23,11 +21,7 @@ def run(name, log_path):
     else:
         # If the service doesn't exist create it
         service = Service(
-            name=name,
-            type="traefik",
-            log_position=-1,
-            log_path=log_path,
-            running=True
+            name=name, type="traefik", log_position=-1, log_path=log_path, running=True
         )
         service.save()
         logger.info(f"Created new traefik job {name}")
@@ -47,7 +41,11 @@ def run(name, log_path):
                         # This is probably some kind of injection attack
                         # to prevent log parsers from correctly parsing the
                         # log line.
-                        line_preprocessed = line.rstrip("\n").replace('""', "\"'")
+                        line_preprocessed = (
+                            line.rstrip("\n")
+                            .replace('"" ', "'\" ")
+                            .replace(' ""', " \"'")
+                        )
                         data = shlex.split(line_preprocessed)
                         ip = data[0]
                         raw_data = f"{data[3].lstrip('[')} {data[4].rstrip(']')}"
@@ -60,8 +58,13 @@ def run(name, log_path):
                         user_agent = data[9]
                         http_status = str_to_int(data[6])
                         content_size = str_to_int(data[7])
-                        (longitude, latitude, city_name, country_name,
-                         autonomous_system_organization) = ip_to_coordinates(ip)
+                        (
+                            longitude,
+                            latitude,
+                            city_name,
+                            country_name,
+                            autonomous_system_organization,
+                        ) = ip_to_coordinates(ip)
 
                         log_line = ServiceLog(
                             timestamp=timestamp,
@@ -80,12 +83,14 @@ def run(name, log_path):
                             user_agent=user_agent,
                             request_method=request_method,
                             content_size=content_size,
-                            is_tor=False
+                            is_tor=False,
                         )
                         log_line.save()
                     except Exception as e:
                         print(e)
-                        logger.error(f"Could not parse log line {i} for job {name}, line: {line}")
+                        logger.error(
+                            f"Could not parse log line {i} for job {name}, line: {line}"
+                        )
                     # print(datetime.fromtimestamp(timestamp))
                     if i % 1000 == 0:
                         logger.debug(f"Parsed {name} log until line {i}")
@@ -104,7 +109,7 @@ def run(name, log_path):
         logger.info(f"Log parsing job {name} already running")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import django
 
     # Prepare Django framework to make database transaction
@@ -112,7 +117,7 @@ if __name__ == '__main__':
     django.setup()
     logger.setLevel(logging.DEBUG)
 
-    traefik_service_name = os.getenv('TRAEFIK_SERVICE_NAME')
+    traefik_service_name = os.getenv("TRAEFIK_SERVICE_NAME")
     traefik_service_log_path = os.getenv("TRAEFIK_SERVICE_LOG_PATH")
 
     run(traefik_service_name, traefik_service_log_path)

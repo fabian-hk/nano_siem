@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.utils.timezone import make_aware
 from folium import Map, Marker
-from folium.plugins import FastMarkerCluster, MarkerCluster
+from folium.plugins import FastMarkerCluster, MarkerCluster, HeatMap
 import time
 from datetime import datetime, timedelta
 
@@ -20,9 +20,17 @@ def overview_map_view(request):
     folium_map = Map(location=start_coords, zoom_start=4)
 
     t1 = time.time()
-    markers = [[l["longitude"], l["latitude"]] for l in ServiceLog.objects.filter(longitude__isnull=False, latitude__isnull=False).order_by("-timestamp").values("longitude", "latitude")[:3000000]]
-    FastMarkerCluster(markers).add_to(folium_map)
-    logger.debug(f"Time to load {len(markers)} data points: {time.time() - t1}s")
+    loc_data = [
+        [l["longitude"], l["latitude"]]
+        for l in ServiceLog.objects.filter(
+            longitude__isnull=False, latitude__isnull=False
+        )
+        .order_by("-timestamp")
+        .values("longitude", "latitude")[:3000000]
+    ]
+    HeatMap(loc_data).add_to(folium_map)
+    # FastMarkerCluster(loc_data).add_to(folium_map)
+    logger.debug(f"Time to load {len(loc_data)} data points: {time.time() - t1}s")
 
     return HttpResponse(folium_map._repr_html_())
 
@@ -45,22 +53,28 @@ class MarkerPoint:
         self.ips.append(log_line.ip)
         self.http_statuses.append(log_line.http_status)
         self.requested_services.append(log_line.requested_service)
-        self.events.append(log_line.event.replace("{", "<BRACKETS>").replace("}", "<BRACKETS>"))
-        self.user_agents.append(log_line.user_agent.replace("{", "<BRACKETS>").replace("}", "<BRACKETS>"))
+        self.events.append(
+            log_line.event.replace("{", "<BRACKETS>").replace("}", "<BRACKETS>")
+        )
+        self.user_agents.append(
+            log_line.user_agent.replace("{", "<BRACKETS>").replace("}", "<BRACKETS>")
+        )
         self.city_names.append(log_line.city_name)
         self.country_names.append(log_line.country_name)
 
     def pop_up(self):
         limit_show = 20
-        variables = {"table_list": zip(
-            self.ips[:limit_show],
-            self.http_statuses[:limit_show],
-            self.requested_services[:limit_show],
-            self.events[:limit_show],
-            self.user_agents[:limit_show],
-            self.city_names[:limit_show],
-            self.country_names[:limit_show]
-        )}
+        variables = {
+            "table_list": zip(
+                self.ips[:limit_show],
+                self.http_statuses[:limit_show],
+                self.requested_services[:limit_show],
+                self.events[:limit_show],
+                self.user_agents[:limit_show],
+                self.city_names[:limit_show],
+                self.country_names[:limit_show],
+            )
+        }
         return render_to_string("detailed_map_view_table.html", variables)
 
     def __repr__(self):
@@ -81,8 +95,12 @@ def detailed_map_view(request):
     date_range = int(request.GET.get("date_range", "0"))
     if date_range == 0:
         start_date_default = datetime.today() - timedelta(days=7)
-        start_date_str = request.GET.get("start_date", start_date_default.strftime(time_format_str))
-        end_date_str = request.GET.get("end_date", datetime.today().strftime(time_format_str))
+        start_date_str = request.GET.get(
+            "start_date", start_date_default.strftime(time_format_str)
+        )
+        end_date_str = request.GET.get(
+            "end_date", datetime.today().strftime(time_format_str)
+        )
         start_date = make_aware(datetime.strptime(start_date_str, time_format_str))
         end_date = make_aware(datetime.strptime(end_date_str, time_format_str))
     else:
@@ -101,7 +119,11 @@ def detailed_map_view(request):
     marker_cluster = MarkerCluster().add_to(folium_map)
     prev_marker_point = MarkerPoint()
     i = 0
-    for i, log_line in enumerate(ServiceLog.objects.filter(timestamp__gte=start_date, timestamp__lte=end_date).order_by("longitude", "latitude")):
+    for i, log_line in enumerate(
+        ServiceLog.objects.filter(
+            timestamp__gte=start_date, timestamp__lte=end_date
+        ).order_by("longitude", "latitude")
+    ):
         if log_line.longitude and log_line.latitude:
             marker_point = MarkerPoint(log_line.longitude, log_line.latitude)
             if marker_point == prev_marker_point:
@@ -110,9 +132,13 @@ def detailed_map_view(request):
             else:
                 if prev_marker_point != MarkerPoint():
                     Marker(
-                        location=(prev_marker_point.longitude, prev_marker_point.latitude),
+                        location=(
+                            prev_marker_point.longitude,
+                            prev_marker_point.latitude,
+                        ),
                         popup=prev_marker_point.pop_up(),
-                        tooltip=prev_marker_point.entries).add_to(marker_cluster)
+                        tooltip=prev_marker_point.entries,
+                    ).add_to(marker_cluster)
 
                 marker_point.fill_data(log_line)
                 prev_marker_point = marker_point
@@ -120,7 +146,8 @@ def detailed_map_view(request):
         Marker(
             location=(prev_marker_point.longitude, prev_marker_point.latitude),
             popup=prev_marker_point.pop_up(),
-            tooltip=prev_marker_point.entries).add_to(marker_cluster)
+            tooltip=prev_marker_point.entries,
+        ).add_to(marker_cluster)
 
     logger.debug(f"Time to load {i} data points: {time.time() - t1}s")
 
