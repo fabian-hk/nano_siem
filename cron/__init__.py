@@ -3,12 +3,12 @@ def is_tor_exit_node(input):
     import datetime
     import os
     
-    #check if file exits
+    #check if file exists
     if os.path.isfile("/home/vagrant/work/projects/chipwhisperer/tor_exit_nodes.txt"):
         my_file = open("/home/vagrant/work/projects/chipwhisperer/tor_exit_nodes.txt", "r")
         modified_date = datetime.datetime.fromtimestamp(os.path.getmtime('tor_exit_nodes.txt'))
         duration = today - modified_date
-        # download new file and replace only if exits more than a day
+        # download new file and replace only if exists more than a day
         if duration.days > 1:
             urllib.request.urlretrieve("https://check.torproject.org/torbulkexitlist", "tor_exit_nodes.txt")
             my_file = open("tor_exit_nodes.txt", "r")
