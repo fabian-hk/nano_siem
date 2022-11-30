@@ -22,15 +22,15 @@ def overview_map_view(request):
     folium_map = Map(location=start_coords, zoom_start=4)
 
     t1 = time.time()
-    loc_data = []
-    timestamp_data = []
-    for log_line in (
-        ServiceLog.objects.filter(longitude__isnull=False, latitude__isnull=False)
-        .order_by("-timestamp")
-        .values("timestamp", "longitude", "latitude")[:2000000]
-    ):
-        loc_data.append([log_line["longitude"], log_line["latitude"]])
-        timestamp_data.append(log_line["timestamp"])
+    start_date = make_aware(datetime.today() - timedelta(days=90))
+    loc_data = [
+        [log_line["longitude"], log_line["latitude"]]
+        for log_line in (
+            ServiceLog.objects.filter(longitude__isnull=False, latitude__isnull=False)
+            .filter(timestamp__gte=start_date)
+            .values("longitude", "latitude")
+        )
+    ]
 
     HeatMap(loc_data).add_to(folium_map)
     # FastMarkerCluster(loc_data).add_to(folium_map)
@@ -38,8 +38,8 @@ def overview_map_view(request):
 
     context = {
         "map": folium_map._repr_html_(),
-        "start_date": timestamp_data[-1].strftime(time_format_str),
-        "end_date": timestamp_data[0].strftime(time_format_str),
+        "start_date": start_date.strftime(time_format_str),
+        "end_date": datetime.today().strftime(time_format_str),
     }
     return render(request, "overview_map_view.html", context)
 
