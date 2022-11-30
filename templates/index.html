@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" style="width: 100%; height: 100%;">
+<head>
+    <title>Nano SIEM</title>
+
+    {% include "header.html" %}
+</head>
+<style>
+    .center {
+        top: 25%;
+        width: 100%;
+        margin-top: 100px;
+    }
+    .card {
+        /* Add shadows to create the "card" effect */
+        box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+        transition: 0.3s;
+        text-align: center;
+        display: block;
+        width: fit-content;
+        margin: auto;
+        border-radius: 5px;
+        padding: 15px;
+        border: none;
+    }
+
+    /* On mouse-over, add a deeper shadow */
+    .card:hover {
+        box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+    }
+
+    .card-container {
+        padding: 20px 0 0 0;
+        width: 250px;
+    }
+    @media only screen and (max-width: 768px) {
+        .second-row-margin {
+            margin-top: 100px;
+        }
+    }
+    a {
+        color: black;
+        text-decoration: none;
+    }
+    a:hover {
+        color: black;
+        text-decoration: none;
+    }
+</style>
+{% load static %}
+<body>
+<div class="center container">
+        <div class="row">
+            <div class="col-md-6">
+                <a href="{% url 'overview_map' %}">
+                    <div class="card">
+                        <img src="{% static 'img/world-map-icon.svg' %}" alt="World Map" width="123px" height="71px">
+                        <div class="card-container">
+                            <h4><b>Overview Map</b></h4>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-6">
+                <a href="{% url 'detailed_map' %}">
+                    <div class="card second-row-margin">
+                        <img src="{% static 'img/maps-pin-black-icon.svg' %}" alt="Marker" width="123px" height="71px">
+                        <div class="card-container">
+                            <h4><b>Detailed Map</b></h4>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+</div>
+</body>
+</html>

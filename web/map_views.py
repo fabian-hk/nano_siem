@@ -12,6 +12,8 @@ from .models import Service, ServiceLog
 
 logger = logging.getLogger(__name__)
 
+time_format_str = "%Y-%m-%d"
+
 
 # Create your views here.
 def overview_map_view(request):
@@ -20,19 +22,26 @@ def overview_map_view(request):
     folium_map = Map(location=start_coords, zoom_start=4)
 
     t1 = time.time()
-    loc_data = [
-        [l["longitude"], l["latitude"]]
-        for l in ServiceLog.objects.filter(
-            longitude__isnull=False, latitude__isnull=False
-        )
+    loc_data = []
+    timestamp_data = []
+    for log_line in (
+        ServiceLog.objects.filter(longitude__isnull=False, latitude__isnull=False)
         .order_by("-timestamp")
-        .values("longitude", "latitude")[:3000000]
-    ]
+        .values("timestamp", "longitude", "latitude")[:2000000]
+    ):
+        loc_data.append([log_line["longitude"], log_line["latitude"]])
+        timestamp_data.append(log_line["timestamp"])
+
     HeatMap(loc_data).add_to(folium_map)
     # FastMarkerCluster(loc_data).add_to(folium_map)
     logger.debug(f"Time to load {len(loc_data)} data points: {time.time() - t1}s")
 
-    return HttpResponse(folium_map._repr_html_())
+    context = {
+        "map": folium_map._repr_html_(),
+        "start_date": timestamp_data[-1].strftime(time_format_str),
+        "end_date": timestamp_data[0].strftime(time_format_str),
+    }
+    return render(request, "overview_map_view.html", context)
 
 
 class MarkerPoint:
@@ -91,7 +100,6 @@ class MarkerPoint:
 
 
 def detailed_map_view(request):
-    time_format_str = "%Y-%m-%d"
     date_range = int(request.GET.get("date_range", "0"))
     if date_range == 0:
         start_date_default = datetime.today() - timedelta(days=7)

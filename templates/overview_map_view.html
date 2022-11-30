@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en" style="width: 100%; height: 100%;">
+<head>
+        <title>Overview Map</title>
+
+    {% include "header.html" %}
+</head>
+<body style="width: 100%; height: 100%;">
+    <h4 style="text-align: center; padding-top: 10px">Showing all request from {{ start_date }} to {{ end_date }}</h4>
+    <iframe style="width: 100%; height: 100%;" srcdoc="{{ map }}"></iframe>
+</body>
+</html>
