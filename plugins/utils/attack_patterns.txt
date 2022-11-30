@@ -1,0 +1,15 @@
+/bin/bash
+bash
+/bin/sh
+sh
+../
+.env
+.git
+passwd
+shadow
+{
+}
+ssh
+'
+"
+databases.sql

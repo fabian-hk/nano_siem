@@ -1,0 +1,28 @@
+<table class="table table-striped" style="display: block; height: 200px; overflow: auto;">
+    <thead>
+        <tr>
+            <td style="background: white; position: sticky; top: 0;"><b>IP</b></td>
+            <td style="background: white; position: sticky; top: 0; padding-left: 10px;"><b>HTTP Status</b></td>
+            <td style="background: white; position: sticky; top: 0; padding-left: 10px;"><b>Requested Service</b></td>
+            <td style="background: white; position: sticky; top: 0; padding-left: 10px;"><b>Event</b></td>
+            <td style="background: white; position: sticky; top: 0; padding-left: 10px;"><b>User Agent</b></td>
+            <td style="background: white; position: sticky; top: 0; padding-left: 10px;"><b>City Names</b></td>
+            <td style="background: white; position: sticky; top: 0; padding-left: 10px;"><b>Country Names</b></td>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in table_list %}
+        <tr>
+            {% autoescape on %}
+            <td>{{ i.0 }}</td>
+            <td style="padding-left: 10px;">{{ i.1 }}</td>
+            <td style="padding-left: 10px;">{{ i.2 }}</td>
+            <td style="padding-left: 10px;">{{ i.3 }}</td>
+            <td style="padding-left: 10px;">{{ i.4 }}</td>
+            <td style="padding-left: 10px;">{{ i.5 }}</td>
+            <td style="padding-left: 10px;">{{ i.6 }}</td>
+            {% endautoescape %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
