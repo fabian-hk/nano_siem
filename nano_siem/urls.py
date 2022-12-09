@@ -15,6 +15,7 @@ Including another URLconf
 """
 # from django.contrib import admin
 from django.urls import path
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from web.index_view import index_view
 from web.map_views import overview_map_view, detailed_map_view
 
@@ -24,3 +25,6 @@ urlpatterns = [
     path("map/overview/", overview_map_view, name="overview_map"),
     path("map/detailed/", detailed_map_view, name="detailed_map")
 ]
+
+# To serve static files directly with gunicorn
+urlpatterns += staticfiles_urlpatterns()

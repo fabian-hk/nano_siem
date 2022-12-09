@@ -134,7 +134,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Cronjob configuration
 CRONJOBS = [
-    ('*/1 * * * *', 'cron.cronjob.cronjob', '>> /home/NanoSiem/crontab.log 2>&1')
+    ('*/1 * * * *', 'cron.cronjob.cronjob', '>> /home/NanoSiem/.nano_siem/crontab.log 2>&1')
 ]
 
 # Logging configuration

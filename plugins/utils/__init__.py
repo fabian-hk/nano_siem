@@ -1,6 +1,9 @@
 from typing import Tuple
+from pathlib import Path
 import logging
 import os
+import urllib.request
+from datetime import datetime, timedelta
 
 import geoip2.database
 import ipaddress
@@ -16,7 +19,7 @@ def str_to_int(s: str):
         return None
 
 
-geoip2_default_path = "/var/nano_siem/geolite2"
+geoip2_default_path = "/home/NanoSiem/.nano_siem/geolite2"
 
 
 def ip_to_coordinates(input: str) -> Tuple[float, float, str, str, str]:
@@ -61,3 +64,31 @@ def ip_to_coordinates(input: str) -> Tuple[float, float, str, str, str]:
     except (ValueError, AddressNotFoundError) as e:
         logger.error(f"Error getting coordinates: {e}")
         return None, None, None, None, None
+
+
+def is_tor_exit_node(input: str) -> bool:
+    app_folder = Path.home() / ".nano_siem"
+    app_folder.mkdir(parents=True, exist_ok=True)
+    tor_lst_file = app_folder / "tor_exit_nodes.txt"
+
+    # check if file exists
+    if tor_lst_file.exists():
+        modified_date = datetime.fromtimestamp(tor_lst_file.stat().st_mtime)
+        # download new file and replace only if exists more than a day
+        if modified_date < datetime.now() - timedelta(days=1):
+            urllib.request.urlretrieve(
+                "https://check.torproject.org/torbulkexitlist",
+                str(tor_lst_file.resolve()),
+            )
+    else:
+        urllib.request.urlretrieve(
+            "https://check.torproject.org/torbulkexitlist",
+            str(tor_lst_file.resolve()),
+        )
+
+    data = tor_lst_file.read_text()
+    data_into_list = data.split("\n")
+    if input in data_into_list:
+        return True
+    else:
+        return False

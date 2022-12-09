@@ -5,8 +5,8 @@ import shlex
 from datetime import datetime
 import logging
 
-from web.models import Service, ServiceLog
-from plugins.utils import str_to_int, ip_to_coordinates
+from web.models import Service, ServiceLog, ServiceLogFail
+from plugins.utils import str_to_int, ip_to_coordinates, is_tor_exit_node
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ def run(name, log_path):
     else:
         # If the service doesn't exist create it
         service = Service(
-            name=name, type="traefik", log_position=-1, log_path=log_path, running=True
+            name=name, type="traefik", log_position=-1, log_path=log_path, running=False
         )
         service.save()
         logger.info(f"Created new traefik job {name}")
@@ -32,6 +32,7 @@ def run(name, log_path):
         log_file = Path(service.log_path)
         with log_file.open("rt") as f:
             i = 0
+            transaction_bulk = []
             for i, line in enumerate(f):
                 if i > service.log_position:
                     try:
@@ -65,6 +66,7 @@ def run(name, log_path):
                             country_name,
                             autonomous_system_organization,
                         ) = ip_to_coordinates(ip)
+                        is_tor = is_tor_exit_node(ip)
 
                         log_line = ServiceLog(
                             timestamp=timestamp,
@@ -83,21 +85,39 @@ def run(name, log_path):
                             user_agent=user_agent,
                             request_method=request_method,
                             content_size=content_size,
-                            is_tor=False,
+                            is_tor=is_tor,
+                            ids_score=0,
                         )
-                        log_line.save()
+                        transaction_bulk.append(log_line)
                     except Exception as e:
                         print(e)
                         logger.error(
                             f"Could not parse log line {i} for job {name}, line: {line}"
                         )
-                    # print(datetime.fromtimestamp(timestamp))
+                        # Save failed log line to the ServiceLogFail table
+                        line_split = line.split(" ")
+                        ip = line_split[0]
+                        service_log_fail = ServiceLogFail(
+                            ip=ip, service_id=service, message=line
+                        )
+                        service_log_fail.save()
+
                     if i % 1000 == 0:
+                        # Optimizing database transaction by committing 1000 log lines at once
+                        ServiceLog.objects.bulk_create(
+                            transaction_bulk, ignore_conflicts=True
+                        )
+                        transaction_bulk.clear()
+
                         logger.debug(f"Parsed {name} log until line {i}")
                         service.log_position = i
                         service.save()
 
             if service.log_position < i:
+                # Save remaining log lines to the database
+                ServiceLog.objects.bulk_create(transaction_bulk, ignore_conflicts=True)
+                transaction_bulk.clear()
+
                 logger.info(f"Parsed log until line {i} for service {name}")
                 service.log_position = i
                 service.save()
