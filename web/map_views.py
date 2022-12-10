@@ -62,12 +62,18 @@ class MarkerPoint:
         self.ips.append(log_line.ip)
         self.http_statuses.append(log_line.http_status)
         self.requested_services.append(log_line.requested_service)
-        self.events.append(
-            log_line.event.replace("{", "<BRACKETS>").replace("}", "<BRACKETS>")
-        )
-        self.user_agents.append(
-            log_line.user_agent.replace("{", "<BRACKETS>").replace("}", "<BRACKETS>")
-        )
+        if log_line.event:
+            self.events.append(
+                log_line.event.replace("{", "<BRACKETS>").replace("}", "<BRACKETS>")
+            )
+        else:
+            self.events.append(None)
+        if log_line.user_agent:
+            self.user_agents.append(
+                log_line.user_agent.replace("{", "<BRACKETS>").replace("}", "<BRACKETS>")
+            )
+        else:
+            self.user_agents.append(None)
         self.city_names.append(log_line.city_name)
         self.country_names.append(log_line.country_name)
 

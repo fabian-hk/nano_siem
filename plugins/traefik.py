@@ -5,7 +5,9 @@ import shlex
 from datetime import datetime
 import logging
 
-from web.models import Service, ServiceLog, ServiceLogFail
+from django.utils.timezone import make_aware
+
+from web.models import Service, ServiceLog
 from plugins.utils import str_to_int, ip_to_coordinates, is_tor_exit_node
 
 logger = logging.getLogger(__name__)
@@ -80,7 +82,6 @@ def run(name, log_path):
                             city_name=city_name,
                             user=user,
                             event=event,
-                            message="",
                             http_status=http_status,
                             user_agent=user_agent,
                             request_method=request_method,
@@ -94,13 +95,35 @@ def run(name, log_path):
                         logger.error(
                             f"Could not parse log line {i} for job {name}, line: {line}"
                         )
-                        # Save failed log line to the ServiceLogFail table
+                        # Save failed log line to the ServiceLog table
                         line_split = line.split(" ")
                         ip = line_split[0]
-                        service_log_fail = ServiceLogFail(
-                            ip=ip, service_id=service, message=line
+
+                        # Add as much information to the failed log as possible
+                        (
+                            longitude,
+                            latitude,
+                            city_name,
+                            country_name,
+                            autonomous_system_organization,
+                        ) = ip_to_coordinates(ip)
+                        is_tor = is_tor_exit_node(ip)
+
+                        failed_log_line = ServiceLog(
+                            timestamp=make_aware(datetime.now()),
+                            ip=ip,
+                            longitude=longitude,
+                            latitude=latitude,
+                            autonomous_system_organization=autonomous_system_organization,
+                            country_name=country_name,
+                            city_name=city_name,
+                            is_tor=is_tor,
+                            service=service,
+                            message=line,
+                            ids_score=999,
+                            # set IDS score to a high value because it is most likely some kind of injection attack
                         )
-                        service_log_fail.save()
+                        transaction_bulk.append(failed_log_line)
 
                     if i % 1000 == 0:
                         # Optimizing database transaction by committing 1000 log lines at once
