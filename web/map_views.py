@@ -136,7 +136,7 @@ def detailed_map_view(request):
     for i, log_line in enumerate(
         ServiceLog.objects.filter(
             timestamp__gte=start_date, timestamp__lte=end_date
-        ).order_by("longitude", "latitude")
+        ).order_by("longitude", "latitude", "-ids_score")
     ):
         if log_line.longitude and log_line.latitude:
             marker_point = MarkerPoint(log_line.longitude, log_line.latitude)

@@ -8,7 +8,7 @@ import logging
 from django.utils.timezone import make_aware
 
 from web.models import Service, ServiceLog
-from plugins.utils import str_to_int, ip_to_coordinates, is_tor_exit_node
+from plugins.utils import str_to_int, ip_to_coordinates, IDSRules, CheckTor
 
 logger = logging.getLogger(__name__)
 
@@ -29,8 +29,15 @@ def run(name, log_path):
         logger.info(f"Created new traefik job {name}")
     if not service.running:
         logger.info(f"Start log parsing for {name} job")
+        # Mark service as running
         service.running = True
         service.save()
+
+        # Prepare utils class
+        ids_rules = IDSRules()
+        check_tor = CheckTor()
+
+        # Open log file
         log_file = Path(service.log_path)
         with log_file.open("rt") as f:
             i = 0
@@ -68,7 +75,8 @@ def run(name, log_path):
                             country_name,
                             autonomous_system_organization,
                         ) = ip_to_coordinates(ip)
-                        is_tor = is_tor_exit_node(ip)
+                        is_tor = check_tor.is_tor_exit_node(ip)
+                        ids_score = ids_rules.ids_score(event, user_agent)
 
                         log_line = ServiceLog(
                             timestamp=timestamp,
@@ -87,7 +95,7 @@ def run(name, log_path):
                             request_method=request_method,
                             content_size=content_size,
                             is_tor=is_tor,
-                            ids_score=0,
+                            ids_score=ids_score,
                         )
                         transaction_bulk.append(log_line)
                     except Exception as e:
@@ -107,7 +115,7 @@ def run(name, log_path):
                             country_name,
                             autonomous_system_organization,
                         ) = ip_to_coordinates(ip)
-                        is_tor = is_tor_exit_node(ip)
+                        is_tor = ids_rules.is_tor_exit_node(ip)
 
                         failed_log_line = ServiceLog(
                             timestamp=make_aware(datetime.now()),
@@ -136,6 +144,9 @@ def run(name, log_path):
                         service.log_position = i
                         service.save()
 
+                if i == 1000000:
+                    break
+
             if service.log_position < i:
                 # Save remaining log lines to the database
                 ServiceLog.objects.bulk_create(transaction_bulk, ignore_conflicts=True)
@@ -144,6 +155,8 @@ def run(name, log_path):
                 logger.info(f"Parsed log until line {i} for service {name}")
                 service.log_position = i
                 service.save()
+
+        ids_rules.print_ids_stats()
 
         logger.info(f"End log parsing for {name} job")
         service.running = False

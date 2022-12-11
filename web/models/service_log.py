@@ -21,4 +21,4 @@ class ServiceLog(models.Model):
     request_method = models.CharField(max_length=10, null=True)
     content_size = models.PositiveBigIntegerField(null=True)
     is_tor = models.BooleanField(db_index=True)
-    ids_score = models.PositiveIntegerField(default=0, db_index=True)
+    ids_score = models.FloatField(default=0, db_index=True)
