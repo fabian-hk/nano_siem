@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Event View</title>
+
+        {% include "header.html" %}
+    </head>
+    <style>
+        .center {
+            margin: auto;
+            width: 90%;
+        }
+        .td-malicious {
+            max-width: 200px;
+            overflow-wrap: break-word;
+        }
+        table {
+            overflow: auto;
+            display: block;
+            max-height: 400px;
+        }
+        h1 {
+            margin-top: 20px;
+        }
+    </style>
+    <body>
+        <div class="center">
+
+            <h1>Malicious Events</h1>
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        {% for i in header_malicious %}
+                            <td style="background: white; position: sticky; top: 0;"><b>{{ i }}</b></td>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in malicious_events %}
+                        <tr>
+                            <td class="td-malicious">{{ i.timestamp }}</td>
+                            <td class="td-malicious">{{ i.requested_service }}</td>
+                            <td class="td-malicious">{{ i.ip }}</td>
+                            <td class="td-malicious">{{ i.autonomous_system_organization }}</td>
+                            <td class="td-malicious">{{ i.country_name }}</td>
+                            <td class="td-malicious">{{ i.city_name }}</td>
+                            <td class="td-malicious">{{ i.event }}</td>
+                            <td class="td-malicious">{{ i.http_status }}</td>
+                            <td class="td-malicious">{{ i.user_agent }}</td>
+                            <td class="td-malicious">{{ i.request_method }}</td>
+                            <td class="td-malicious">{{ i.is_tor }}</td>
+                            <td class="td-malicious">{{ i.ids_score | floatformat:2 }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <h1>Log Line Parser Fails</h1>
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        {% for i in header_log_line_fail %}
+                            <td style="background: white; position: sticky; top: 0;"><b>{{ i }}</b></td>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in log_line_fail_events %}
+                        <tr>
+                            <td>{{ i.timestamp }}</td>
+                            <td>{{ i.ip }}</td>
+                            <td>{{ i.autonomous_system_organization }}</td>
+                            <td>{{ i.country_name }}</td>
+                            <td>{{ i.city_name }}</td>
+                            <td>{{ i.message}}</td>
+                            <td>{{ i.is_tor }}</td>
+                            <td>{{ i.ids_score | floatformat:0 }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <h1>IP Addresses without Location</h1>
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        {% for i in header_locationless %}
+                            <td style="background: white; position: sticky; top: 0;"><b>{{ i }}</b></td>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in locationless_events %}
+                        <tr>
+                            <td>{{ i.timestamp }}</td>
+                            <td>{{ i.requested_service }}</td>
+                            <td>{{ i.ip }}</td>
+                            <td>{{ i.event }}</td>
+                            <td>{{ i.http_status }}</td>
+                            <td>{{ i.user_agent }}</td>
+                            <td>{{ i.request_method }}</td>
+                            <td>{{ i.is_tor }}</td>
+                            <td>{{ i.ids_score | floatformat:2 }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </body>
+</html>

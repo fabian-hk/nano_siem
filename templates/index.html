@@ -33,7 +33,7 @@
         padding: 20px 0 0 0;
         width: 250px;
     }
-    @media only screen and (max-width: 768px) {
+    @media only screen and (max-width: 992px) {
         .second-row-margin {
             margin-top: 100px;
         }
@@ -50,28 +50,38 @@
 {% load static %}
 <body>
 <div class="center container">
-        <div class="row">
-            <div class="col-md-6">
-                <a href="{% url 'overview_map' %}">
-                    <div class="card">
-                        <img src="{% static 'img/world-map-icon.svg' %}" alt="World Map" width="123px" height="71px">
-                        <div class="card-container">
-                            <h4><b>Overview Map</b></h4>
-                        </div>
+    <div class="row">
+        <div class="col-lg-4">
+            <a href="{% url 'overview_map' %}">
+                <div class="card">
+                    <img src="{% static 'img/world-map-icon.svg' %}" alt="World Map" width="123px" height="71px">
+                    <div class="card-container">
+                        <h4><b>Overview Map</b></h4>
                     </div>
-                </a>
-            </div>
-            <div class="col-md-6">
-                <a href="{% url 'detailed_map' %}">
-                    <div class="card second-row-margin">
-                        <img src="{% static 'img/maps-pin-black-icon.svg' %}" alt="Marker" width="123px" height="71px">
-                        <div class="card-container">
-                            <h4><b>Detailed Map</b></h4>
-                        </div>
-                    </div>
-                </a>
-            </div>
+                </div>
+            </a>
         </div>
+        <div class="col-lg-4">
+            <a href="{% url 'detailed_map' %}">
+                <div class="card second-row-margin">
+                    <img src="{% static 'img/maps-pin-black-icon.svg' %}" alt="Marker" width="123px" height="71px">
+                    <div class="card-container">
+                        <h4><b>Detailed Map</b></h4>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-4">
+        <a href="{% url 'events' %}">
+                <div class="card second-row-margin">
+                    <img src="{% static 'img/lock-folder-icon.svg' %}" alt="Marker" width="123px" height="71px">
+                    <div class="card-container">
+                        <h4><b>Events</b></h4>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
 </div>
 </body>
 </html>

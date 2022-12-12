@@ -18,12 +18,14 @@ from django.urls import path
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from web.index_view import index_view
 from web.map_views import overview_map_view, detailed_map_view
+from web.event_view import event_view
 
 urlpatterns = [
     #    path('admin/', admin.site.urls),
     path("", index_view, name="index"),
     path("map/overview/", overview_map_view, name="overview_map"),
-    path("map/detailed/", detailed_map_view, name="detailed_map")
+    path("map/detailed/", detailed_map_view, name="detailed_map"),
+    path("events/", event_view, name="events")
 ]
 
 # To serve static files directly with gunicorn
