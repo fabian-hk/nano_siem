@@ -115,7 +115,7 @@ def run(name, log_path):
                             country_name,
                             autonomous_system_organization,
                         ) = ip_to_coordinates(ip)
-                        is_tor = ids_rules.is_tor_exit_node(ip)
+                        is_tor = check_tor.is_tor_exit_node(ip)
 
                         failed_log_line = ServiceLog(
                             timestamp=make_aware(datetime.now()),
@@ -144,7 +144,7 @@ def run(name, log_path):
                         service.log_position = i
                         service.save()
 
-                if i == 1000000:
+                if i == 7000000:
                     break
 
             if service.log_position < i:

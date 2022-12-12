@@ -36,3 +36,6 @@ phpinfo.php
 ascii.php3
 ..%u2216
 script.cgi
+autodiscover
+Powershell
+powershell

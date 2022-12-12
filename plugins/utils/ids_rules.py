@@ -54,7 +54,7 @@ class IDSRules:
         term_frequency_absolute = json.loads(
             term_frequency_file.read_text()
         )  # type: dict
-        N = 1000000
+        N = 7000000
         idf = {}
         for (term, num) in term_frequency_absolute.items():
             idf[term] = math.log(N / num)
@@ -91,24 +91,26 @@ class IDSRules:
         else:
             return 2 * self.idf_max_user_agent
 
-    def ids_score(self, event: str, user_agent: str) -> int:
+    def ids_score(self, event: str, user_agent: str) -> float:
         event_exclude = {"&"}
         user_agent_exclude = {";", ".", "/", "(", ")", ",", ":"}
-        score = 0
+        event_score = []
+        user_agent_score = []
 
         self.lines += 1
 
         # Check how many patterns can be found in the event and user agent string
         for p in self.attack_patterns:
             if p not in event_exclude and p in event:
-                score += self._calculate_event_ids_score(p)
+                event_score.append(self._calculate_event_ids_score(p))
                 self.event_count += 1
                 self._event_match(p)
             if p not in user_agent_exclude and p in user_agent:
-                score += self._calculate_user_agent_ids_score(p)
+                user_agent_score.append(self._calculate_user_agent_ids_score(p))
                 self.user_agent_count += 1
                 self._user_agent_match(p)
-        return score
+
+        return max(event_score, default=0) +  max(user_agent_score, default=0)
 
     def _event_match(self, p: str):
         if p in self.event_match.keys():
@@ -129,6 +131,11 @@ class IDSRules:
         )
         logger.debug(f"IDS rules stat | Event match: {self.event_match}")
         logger.debug(f"IDS rules stat | User agent match: {self.user_agent_match}")
+
+        term_frequency_event = Path("term_frequency_event.json")
+        term_frequency_event.write_text(json.dumps(self.event_match))
+        term_frequency_user_agent = Path("term_frequency_user_agent.json")
+        term_frequency_user_agent.write_text(json.dumps(self.user_agent_match))
 
 
 if __name__ == "__main__":
