@@ -1,10 +1,9 @@
 import logging
 from django.shortcuts import render
-from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.utils.timezone import make_aware
 from folium import Map, Marker
-from folium.plugins import FastMarkerCluster, MarkerCluster, HeatMap
+from folium.plugins import MarkerCluster, HeatMap
 import time
 from datetime import datetime, timedelta
 
@@ -57,6 +56,7 @@ class MarkerPoint:
         self.user_agents = []
         self.city_names = []
         self.country_names = []
+        self.is_tor = []
 
     def fill_data(self, log_line: ServiceLog):
         self.ips.append(log_line.ip)
@@ -64,18 +64,23 @@ class MarkerPoint:
         self.requested_services.append(log_line.requested_service)
         if log_line.event:
             self.events.append(
-                log_line.event.replace("{", "<BRACKETS>").replace("}", "<BRACKETS>")
+                log_line.event.replace("{", "<BRACKETS>")
+                .replace("}", "<BRACKETS>")
+                .replace("`", "<SUB>")
             )
         else:
             self.events.append(None)
         if log_line.user_agent:
             self.user_agents.append(
-                log_line.user_agent.replace("{", "<BRACKETS>").replace("}", "<BRACKETS>")
+                log_line.user_agent.replace("{", "<BRACKETS>")
+                .replace("}", "<BRACKETS>")
+                .replace("`", "<SUB>")
             )
         else:
             self.user_agents.append(None)
         self.city_names.append(log_line.city_name)
         self.country_names.append(log_line.country_name)
+        self.is_tor.append(log_line.is_tor)
 
     def pop_up(self):
         limit_show = 20
@@ -88,6 +93,7 @@ class MarkerPoint:
                 self.user_agents[:limit_show],
                 self.city_names[:limit_show],
                 self.country_names[:limit_show],
+                self.is_tor[:limit_show]
             )
         }
         return render_to_string("detailed_map_view_table.html", variables)

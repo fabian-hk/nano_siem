@@ -8,6 +8,7 @@
             <td style="background: white; position: sticky; top: 0; padding-left: 10px;"><b>User Agent</b></td>
             <td style="background: white; position: sticky; top: 0; padding-left: 10px;"><b>City Names</b></td>
             <td style="background: white; position: sticky; top: 0; padding-left: 10px;"><b>Country Names</b></td>
+            <td style="background: white; position: sticky; top: 0; padding-left: 10px;"><b>Is Tor</b></td>
         </tr>
     </thead>
     <tbody>
@@ -17,10 +18,11 @@
             <td>{{ i.0 }}</td>
             <td style="padding-left: 10px;">{{ i.1 }}</td>
             <td style="padding-left: 10px;">{{ i.2 }}</td>
-            <td style="padding-left: 10px;">{{ i.3 }}</td>
-            <td style="padding-left: 10px;">{{ i.4 }}</td>
+            <td style="padding-left: 10px; max-width: 300px; overflow-wrap: break-word;">{{ i.3 }}</td>
+            <td style="padding-left: 10px; max-width: 300px; overflow-wrap: break-word;">{{ i.4 }}</td>
             <td style="padding-left: 10px;">{{ i.5 }}</td>
             <td style="padding-left: 10px;">{{ i.6 }}</td>
+            <td style="padding-left: 10px;">{{ i.7 }}</td>
             {% endautoescape %}
         </tr>
         {% endfor %}

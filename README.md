@@ -1,11 +1,13 @@
 # Nano SIEM
 
-This is the repository for our 
-Computer Security Project.
-You should always develop
-in a separate branch that will
-be merged into the main branch
-after a review.
+![Screenshot Detailed Map](doc/screenshot_detailed_map.png)
+
+# Demo
+
+If you want to check out the implementation with example
+data you can go to the [demo/](demo/) folder.
+Further instructions how to run the application
+can be found there.
 
 # Configuration
 
@@ -16,7 +18,8 @@ after a review.
    1. Create an account at [MAXMIND](https://dev.maxmind.com/geoip/geolite2-free-geolocation-data?lang=en)
    2. Create License file: `GeoIP.conf`
    3. Mount license file to: `/etc/GeoIP.conf`
-3. [Optional] Mount log file for crontab to: `/home/NanoSiem/crontab.log`
+3. Configure the database (see below)
+4. [Optional] Mount log file for crontab to: `/home/NanoSiem/crontab.log`
 
 ## Database
 
