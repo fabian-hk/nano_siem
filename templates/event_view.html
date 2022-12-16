@@ -108,6 +108,36 @@
                     {% endfor %}
                 </tbody>
             </table>
+
+        <h1>Tor Events</h1>
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        {% for i in header_malicious %}
+                            <td style="background: white; position: sticky; top: 0;"><b>{{ i }}</b></td>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in tor_events %}
+                        <tr>
+                            <td class="td-malicious">{{ i.timestamp }}</td>
+                            <td class="td-malicious">{{ i.requested_service }}</td>
+                            <td class="td-malicious">{{ i.ip }}</td>
+                            <td class="td-malicious">{{ i.autonomous_system_organization }}</td>
+                            <td class="td-malicious">{{ i.country_name }}</td>
+                            <td class="td-malicious">{{ i.city_name }}</td>
+                            <td class="td-malicious">{{ i.event }}</td>
+                            <td class="td-malicious">{{ i.http_status }}</td>
+                            <td class="td-malicious">{{ i.user_agent }}</td>
+                            <td class="td-malicious">{{ i.request_method }}</td>
+                            <td class="td-malicious">{{ i.is_tor }}</td>
+                            <td class="td-malicious">{{ i.ids_score | floatformat:2 }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </body>
 </html>

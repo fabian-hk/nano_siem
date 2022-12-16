@@ -5,6 +5,8 @@ from django.shortcuts import render
 from .models import ServiceLog
 
 logger = logging.getLogger(__name__)
+
+
 def event_view(request):
     logger.info("Loading event view...")
     t = time.time()
@@ -100,6 +102,27 @@ def event_view(request):
     )
     logger.debug(f"Time to load locationless log lines: {time.time() - t}s")
 
+    t = time.time()
+    tor_events = (
+        ServiceLog.objects.filter(is_tor=True)
+        .order_by("-ids_score", "-timestamp")
+        .values(
+            "timestamp",
+            "requested_service",
+            "ip",
+            "autonomous_system_organization",
+            "country_name",
+            "city_name",
+            "event",
+            "http_status",
+            "user_agent",
+            "request_method",
+            "is_tor",
+            "ids_score",
+        )[:max_events]
+    )
+    logger.debug(f"Time to load Tor log lines: {time.time() - t}s")
+
     context = {
         "header_malicious": header_malicious,
         "malicious_events": malicious_events,
@@ -107,6 +130,8 @@ def event_view(request):
         "log_line_fail_events": log_line_fail_events,
         "header_locationless": header_locationless,
         "locationless_events": locationless_events,
+        "header_tor": header_malicious,
+        "tor_events": tor_events,
     }
 
     return render(request, "event_view.html", context)
