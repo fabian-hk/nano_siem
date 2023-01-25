@@ -1,4 +1,4 @@
-version: "3.9"
+version: "3"
 
 services:
   nano_siem:
@@ -29,7 +29,7 @@ services:
     environment:
       - MARIADB_USER=NanoSiem
       - MARIADB_DATABASE=NanoSiem
-      - MARIADB_PASSWORD=wLzLQHR8tni5VKdar4dVPkAR3CIv0l
+      - MARIADB_PASSWORD=${MYSQL_PASSWORD}
       - MARIADB_RANDOM_ROOT_PASSWORD=yes
     ports:
       - 127.0.0.1:3306:3306
