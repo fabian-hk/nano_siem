@@ -51,7 +51,7 @@
 <body>
 <div class="center container">
     <div class="row">
-        <div class="col-lg-4">
+        <div class="col-lg-6">
             <a href="{% url 'overview_map' %}">
                 <div class="card">
                     <img src="{% static 'img/world-map-icon.svg' %}" alt="World Map" width="123px" height="71px">
@@ -61,7 +61,7 @@
                 </div>
             </a>
         </div>
-        <div class="col-lg-4">
+        <div class="col-lg-6">
             <a href="{% url 'detailed_map' %}">
                 <div class="card second-row-margin">
                     <img src="{% static 'img/maps-pin-black-icon.svg' %}" alt="Marker" width="123px" height="71px">
@@ -71,12 +71,26 @@
                 </div>
             </a>
         </div>
-        <div class="col-lg-4">
+    </div>
+    <br>
+    <br>
+    <div class="row">
+        <div class="col-lg-6">
         <a href="{% url 'events' %}">
                 <div class="card second-row-margin">
                     <img src="{% static 'img/lock-folder-icon.svg' %}" alt="Marker" width="123px" height="71px">
                     <div class="card-container">
                         <h4><b>Events</b></h4>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-6">
+        <a href="{% url 'overwatch' %}">
+                <div class="card second-row-margin">
+                    <img src="{% static 'img/monitoring-system-icon.svg' %}" alt="Marker" width="123px" height="71px">
+                    <div class="card-container">
+                        <h4><b>Overwatch</b></h4>
                     </div>
                 </div>
             </a>

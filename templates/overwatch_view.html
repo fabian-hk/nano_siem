@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Overwatch</title>
+
+    {% include "header.html" %}
+</head>
+<style>
+    .red-dot {
+        height: 25px;
+        width: 25px;
+        background-color: red;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .green-dot {
+        height: 25px;
+        width: 25px;
+        background-color: green;
+        border-radius: 50%;
+        display: inline-block;
+    }
+</style>
+<body>
+
+{% load tz %}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            {% for i in services_header %}
+                <td><b>{{ i }}</b></td>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in services %}
+            <tr>
+                <td>{{ i.name }}</td>
+                <td>{{ i.type }}</td>
+                <td>
+                    {%  if i.available %}
+                        <span class="green-dot" data-toggle="tooltip" data-placement="right" title="Available"></span>
+                    {% else %}
+                        <span class="red-dot" data-toggle="tooltip" data-placement="right" title="Unavailable"></span>
+                    {% endif %}
+                </td>
+                <td>{{ i.modification_time | localtime }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+</body>
+<script>
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
+</script>
+</html>
