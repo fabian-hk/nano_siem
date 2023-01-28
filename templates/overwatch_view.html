@@ -6,6 +6,16 @@
     {% include "header.html" %}
 </head>
 <style>
+    .center {
+        margin: auto;
+        width: 70%;
+    }
+    h1 {
+        margin-top: 20px;
+    }
+    .clickable-row {
+        cursor: pointer;
+    }
     .red-dot {
         height: 25px;
         width: 25px;
@@ -25,36 +35,70 @@
 
 {% load tz %}
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            {% for i in services_header %}
-                <td><b>{{ i }}</b></td>
-            {% endfor %}
-        </tr>
-    </thead>
-    <tbody>
-        {% for i in services %}
+<div class="center">
+    <h1>Overwatch</h1>
+    <table class="table table-hover">
+        <thead>
             <tr>
-                <td>{{ i.name }}</td>
-                <td>{{ i.type }}</td>
-                <td>
-                    {%  if i.available %}
-                        <span class="green-dot" data-toggle="tooltip" data-placement="right" title="Available"></span>
-                    {% else %}
-                        <span class="red-dot" data-toggle="tooltip" data-placement="right" title="Unavailable"></span>
-                    {% endif %}
-                </td>
-                <td>{{ i.modification_time | localtime }}</td>
+                {% for i in services_header %}
+                    <td><b>{{ i }}</b></td>
+                {% endfor %}
             </tr>
-        {% endfor %}
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            {% for i in services %}
+                <tr class="clickable-row" data-name="{{ i.name }}">
+                    <td>{{ i.name }}</td>
+                    <td>{{ i.type }}</td>
+                    <td>
+                        {%  if i.available %}
+                            <span class="green-dot" data-toggle="tooltip" data-placement="right" title="Available"></span>
+                        {% else %}
+                            <span class="red-dot" data-toggle="tooltip" data-placement="right" title="Unavailable"></span>
+                        {% endif %}
+                    </td>
+                    <td>{{ i.up_time }}</td>
+                    <td>{{ i.modification_time | localtime }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
+    <!-- The Modal -->
+    <div class="modal" id="myModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+
+          <!-- Modal Header -->
+          <div class="modal-header">
+            <h4 class="modal-title" id="modal-title"></h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+
+          <!-- Modal body -->
+          <div class="modal-body">
+            <img src="#" alt="Latency Graph" width="100%">
+          </div>
+
+          <!-- Modal footer -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+</div>
 </body>
 <script>
     $(function () {
         $('[data-toggle="tooltip"]').tooltip()
     })
+    jQuery(document).ready(function($) {
+        $(".clickable-row").click(function() {
+            $("#modal-title").text($(this).data("name") + " Latency Graph");
+            $("#myModal").modal("show");
+        });
+    });
 </script>
 </html>
