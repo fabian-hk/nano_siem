@@ -1,18 +1,19 @@
 import logging
 import os
 
-import django
+# import django
 
 # Prepare Django framework to make database transaction
-os.environ["DJANGO_SETTINGS_MODULE"] = "nano_siem.settings"
-django.setup()
+# os.environ["DJANGO_SETTINGS_MODULE"] = "nano_siem.settings"
+# django.setup()
 
 from plugins import traefik, overwatch
+from cron import notifications
 
 logger = logging.getLogger(__name__)
 
 
-logger.setLevel(logging.DEBUG)
+# logger.setLevel(logging.DEBUG)
 
 
 def cronjob():
@@ -26,6 +27,8 @@ def cronjob():
         traefik.run(traefik_service_name, traefik_service_log_path)
     if overwatch.is_configured():
         overwatch.run()
+
+    notifications.send_notifications()
 
 
 if __name__ == "__main__":

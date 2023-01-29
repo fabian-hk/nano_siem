@@ -3,26 +3,45 @@ import time
 from datetime import datetime, timedelta
 from django.shortcuts import render
 from django.utils.timezone import make_aware
-from django.forms.models import model_to_dict
+from django.http import HttpResponse
+import matplotlib.pyplot as plt
+import io
 
 from .models import OverwatchService, OverwatchLog
+from plugins import overwatch
 
 logger = logging.getLogger(__name__)
 
 
 def overwatch_view(request):
-    rows = []
-    for service in OverwatchService.objects.order_by("type").all():
-        up = OverwatchLog.objects.filter(service=service).exclude(latency__exact=0.0).count()
-        number = OverwatchLog.objects.filter(service=service).count()
-        up_time = up / number
-        model_as_dict = model_to_dict(service)
-        model_as_dict["up_time"] = f"{int(up_time * 100)}%"
-        model_as_dict["modification_time"] = service.modification_time
-        rows.append(model_as_dict)
-
-    context = {
-        "services_header": ["Name", "Type", "Available", "Up-Time", "Last Updated"],
-        "services": rows,
-    }
+    context = overwatch.get_data_as_table()
     return render(request, "overwatch_view.html", context)
+
+
+def latency_plot(request, name):
+    service = OverwatchService.objects.get(name=name)
+
+    start_date = make_aware(datetime.today() - timedelta(days=7))
+    logs = (
+        OverwatchLog.objects.filter(service=service, timestamp__gte=start_date)
+        .order_by("timestamp")
+        .all()
+    )
+
+    timestamps = []
+    latencies = []
+    for log in logs:
+        timestamps.append(log.timestamp)
+        latencies.append(log.latency)
+
+    plt.figure(figsize=(10, 5))
+    plt.rcParams["font.size"] = 12
+    plt.plot(timestamps, latencies)
+    plt.title(name)
+    plt.xlabel("Time")
+    plt.ylabel("Latency (ms)")
+    svg_str = io.BytesIO()
+    plt.savefig(svg_str, format="svg")
+    plt.close()
+
+    return HttpResponse(svg_str.getvalue(), content_type="image/svg+xml")

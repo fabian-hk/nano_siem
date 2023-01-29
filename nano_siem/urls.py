@@ -19,7 +19,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from web.index_view import index_view
 from web.map_views import overview_map_view, detailed_map_view
 from web.event_view import event_view
-from web.overwatch_view import overwatch_view
+from web.overwatch_view import overwatch_view, latency_plot
 
 urlpatterns = [
     #    path('admin/', admin.site.urls),
@@ -28,6 +28,7 @@ urlpatterns = [
     path("map/detailed/", detailed_map_view, name="detailed_map"),
     path("events/", event_view, name="events"),
     path("overwatch/", overwatch_view, name="overwatch"),
+    path("api/overwatch/latency-plot/<str:name>", latency_plot, name="latency_plot"),
 ]
 
 # To serve static files directly with gunicorn

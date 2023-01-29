@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Email Notification</title>
+</head>
+<style>
+    td {
+        padding: 10px;
+    }
+    .red-dot {
+        height: 25px;
+        width: 25px;
+        background-color: red;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .green-dot {
+        height: 25px;
+        width: 25px;
+        background-color: green;
+        border-radius: 50%;
+        display: inline-block;
+    }
+</style>
+
+{% load tz %}
+
+<body>
+    <h1>Nano SIEM Notifications</h1>
+    {% if ow_services_header %}
+        <h2>Overwatch</h2>
+        <p>Some services are not available:</p>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    {% for i in ow_services_header %}
+                        <td><b>{{ i }}</b></td>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in ow_services %}
+                    <tr>
+                        <td>{{ i.name }}</td>
+                        <td>{{ i.type }}</td>
+                        <td>
+                            {%  if i.available %}
+                                <span class="green-dot"></span>
+                            {% else %}
+                                <span class="red-dot"></span>
+                            {% endif %}
+                        </td>
+                        <td>{{ i.up_time }}</td>
+                        <td>{{ i.modification_time | localtime }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</body>
+</html>

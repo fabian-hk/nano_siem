@@ -2,4 +2,7 @@ venv/
 .idea/
 __pycache__/
 .git/
+.gitignore
 demo/
+.env
+.crontab.log
