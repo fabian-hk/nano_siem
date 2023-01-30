@@ -3,6 +3,8 @@ import logging
 import os
 import socket
 import time
+import subprocess
+import requests
 from django.forms.models import model_to_dict
 
 from web.models import OverwatchService, OverwatchLog
@@ -19,28 +21,45 @@ def run():
         tcp_server_availability(os.getenv(f"OW_TCP_{i}"))
         i += 1
 
+    # Check the availability of all configured HTTP servers
+    i = 0
+    while os.getenv(f"OW_HTTP_{i}", None):
+        http_server_availability(os.getenv(f"OW_HTTP_{i}"))
+        i += 1
 
-def tcp_server_availability(config):
+    # Check the availability of all configured ping hosts
+    i = 0
+    while os.getenv(f"OW_PING_{i}", None):
+        ping_availability(os.getenv(f"OW_PING_{i}"))
+        i += 1
+
+
+def get_service(config: str, type: str) -> OverwatchService:
     name, host, port = _parse_config(config)
-    if not port:
-        logger.error(f"Port is not defined for TCP server {name}")
-        return
-    logger.debug(f"Check if TCP server on host {host} and port {port} is available")
-
-    # Check if there is already an DB entry for this overwatch job
-    if OverwatchService.objects.filter(name=name).exists():
-        service = OverwatchService.objects.get(name=name)
+    if OverwatchService.objects.filter(name=name, type=type).exists():
+        service = OverwatchService.objects.get(name=name, type=type)
         service.host = host
         service.port = port
+        return service
     else:
-        service = OverwatchService(
-            name=name, type="tcp", host=host, port=port, available=False, notified=False
+        return OverwatchService(
+            name=name, type=type, host=host, port=port, available=False
         )
+
+
+def tcp_server_availability(config):
+    service = get_service(config, "tcp")
+    if not service.port:
+        logger.error(f"Port is not defined for TCP server {service.name}")
+        return
+    logger.debug(
+        f"Check if TCP server on host {service.host} and port {service.port} is available"
+    )
 
     try:
         time.sleep(2)
         start = time.time_ns()
-        sock = socket.create_connection((host, port), timeout=5)
+        sock = socket.create_connection((service.host, service.port), timeout=5)
         time_ms = (time.time_ns() - start) / 1000000
         logger.debug(f"Time to connect to TCP server: {time_ms}ms")
         sock.shutdown(socket.SHUT_RDWR)
@@ -56,11 +75,56 @@ def tcp_server_availability(config):
     OverwatchLog(service=service, latency=time_ms).save()
 
 
+def http_server_availability(config):
+    service = get_service(config, "http")
+
+    try:
+        response = requests.get(service.host, timeout=5)
+        time_ms = response.elapsed.total_seconds() * 1000
+        logger.debug(f"Time to connect to HTTP server: {time_ms}ms")
+        if response.status_code < 400:
+            service.available = True
+            service.notified = False
+        else:
+            service.available = False
+    except requests.exceptions.RequestException as e:
+        time_ms = 0
+        service.available = False
+
+    service.save()
+
+    OverwatchLog(service=service, latency=time_ms).save()
+
+
+def ping_availability(config: str):
+    service = get_service(config, "ping")
+    logger.debug(f"Check if host {service.host} is available via ping")
+
+    result = subprocess.Popen(
+        ["/usr/bin/ping", "-c", "4", service.host], stdout=subprocess.PIPE
+    )
+    result.wait()
+    time_ms = 0
+    if result.returncode == 0:
+        service.available = True
+        service.notified = False
+        output = result.stdout.readlines()[-1].decode("utf-8").split("/")
+        if len(output) >= 5:
+            avg = output[4]
+            time_ms = float(avg)
+    else:
+        service.available = False
+
+    service.save()
+
+    OverwatchLog(service=service, latency=time_ms).save()
+
+
 def _parse_config(config: str) -> Tuple[str, str, int]:
     config = config.split(",")
     name = config[0]
     host = config[1]
-    port = None
+    port = 0
     if len(config) == 3:
         port = int(config[2])
     return name, host, port

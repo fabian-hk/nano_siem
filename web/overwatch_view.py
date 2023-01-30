@@ -38,7 +38,7 @@ def latency_plot(request, name):
     plt.rcParams["font.size"] = 12
     plt.plot(timestamps, latencies)
     plt.title(name)
-    plt.xlabel("Time")
+    plt.xlabel("Date")
     plt.ylabel("Latency (ms)")
     svg_str = io.BytesIO()
     plt.savefig(svg_str, format="svg")

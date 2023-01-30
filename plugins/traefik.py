@@ -165,6 +165,10 @@ def run(name, log_path):
         logger.info(f"Log parsing job {name} already running")
 
 
+def is_configured(log_path: str) -> bool:
+    return os.stat(log_path).st_size > 0
+
+
 if __name__ == "__main__":
     import django
 

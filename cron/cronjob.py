@@ -12,22 +12,25 @@ from cron import notifications
 
 logger = logging.getLogger(__name__)
 
-
 # logger.setLevel(logging.DEBUG)
 
 
 def cronjob():
     logger.info("Start cronjob")
 
-    traefik_service_name = os.getenv("TRAEFIK_SERVICE_NAME", None)
-    if traefik_service_name:
-        traefik_service_log_path = os.getenv(
-            "TRAEFIK_SERVICE_LOG_PATH", "/var/log/traefik_access.log"
-        )
+    # Running Traefik log parsing job, if configured
+    traefik_service_log_path = os.getenv(
+        "TRAEFIK_SERVICE_LOG_PATH", "/var/log/traefik_access.log"
+    )
+    if traefik.is_configured(traefik_service_log_path):
+        traefik_service_name = os.getenv("TRAEFIK_SERVICE_NAME", None)
         traefik.run(traefik_service_name, traefik_service_log_path)
+
+    # Running overwatch job, if configured
     if overwatch.is_configured():
         overwatch.run()
 
+    # Send notifications, if available
     notifications.send_notifications()
 
 

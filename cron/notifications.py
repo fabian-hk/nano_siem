@@ -49,12 +49,11 @@ def send_notifications():
         part2 = MIMEText(html, "html")
         message.attach(part2)
 
-        context = ssl.create_default_context()
-        with smtplib.SMTP_SSL(
+        with smtplib.SMTP(
             smtp_server,
-            int(os.getenv("NOTIFICATION_EMAIL_SMTP_PORT", 465)),
-            context=context,
+            int(os.getenv("NOTIFICATION_EMAIL_SMTP_PORT", 587)),
         ) as server:
+            server.starttls()
             server.login(sender_email, password)
             server.sendmail(sender_email, receiver_email, message.as_string())
             logger.info("Notification email sent")
