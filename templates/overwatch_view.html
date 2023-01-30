@@ -13,6 +13,9 @@
     h1 {
         margin-top: 20px;
     }
+    h2 {
+        margin-top: 30px;
+    }
     .clickable-row {
         cursor: pointer;
     }
@@ -37,6 +40,8 @@
 
 <div class="center">
     <h1>Overwatch</h1>
+    {% if ow_http_services %}
+    <h2>HTTP Services</h2>
     <table class="table table-hover">
         <thead>
             <tr>
@@ -46,10 +51,9 @@
             </tr>
         </thead>
         <tbody>
-            {% for i in ow_services %}
+            {% for i in ow_http_services %}
                 <tr class="clickable-row" data-name="{{ i.name }}">
                     <td>{{ i.name }}</td>
-                    <td>{{ i.type }}</td>
                     <td>
                         {%  if i.available %}
                             <span class="green-dot" data-toggle="tooltip" data-placement="right" title="Available"></span>
@@ -63,6 +67,63 @@
             {% endfor %}
         </tbody>
     </table>
+    {% endif %}
+    {% if ow_tcp_services %}
+    <h2>TCP Services</h2>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                {% for i in ow_services_header %}
+                    <td><b>{{ i }}</b></td>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in ow_tcp_services %}
+                <tr class="clickable-row" data-name="{{ i.name }}">
+                    <td>{{ i.name }}</td>
+                    <td>
+                        {%  if i.available %}
+                            <span class="green-dot" data-toggle="tooltip" data-placement="right" title="Available"></span>
+                        {% else %}
+                            <span class="red-dot" data-toggle="tooltip" data-placement="right" title="Unavailable"></span>
+                        {% endif %}
+                    </td>
+                    <td>{{ i.up_time }}</td>
+                    <td>{{ i.modification_time | localtime }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+    {% if ow_ping_services %}
+    <h2>Ping Services</h2>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                {% for i in ow_services_header %}
+                    <td><b>{{ i }}</b></td>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in ow_ping_services %}
+                <tr class="clickable-row" data-name="{{ i.name }}">
+                    <td>{{ i.name }}</td>
+                    <td>
+                        {%  if i.available %}
+                            <span class="green-dot" data-toggle="tooltip" data-placement="right" title="Available"></span>
+                        {% else %}
+                            <span class="red-dot" data-toggle="tooltip" data-placement="right" title="Unavailable"></span>
+                        {% endif %}
+                    </td>
+                    <td>{{ i.up_time }}</td>
+                    <td>{{ i.modification_time | localtime }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
 
     <!-- The Modal -->
     <div class="modal" id="myModal">

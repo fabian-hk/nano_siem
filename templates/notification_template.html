@@ -8,6 +8,9 @@
     td {
         padding: 10px;
     }
+    h2 {
+        margin-top: 30px;
+    }
     .red-dot {
         height: 25px;
         width: 25px;
@@ -31,7 +34,9 @@
     {% if ow_services_header %}
         <h2>Overwatch</h2>
         <p>Some services are not available:</p>
-        <table class="table table-hover">
+        {% if ow_http_services %}
+        <h3>HTTP Services</h3>
+        <table>
             <thead>
                 <tr>
                     {% for i in ow_services_header %}
@@ -40,10 +45,9 @@
                 </tr>
             </thead>
             <tbody>
-                {% for i in ow_services %}
+                {% for i in ow_http_services %}
                     <tr>
                         <td>{{ i.name }}</td>
-                        <td>{{ i.type }}</td>
                         <td>
                             {%  if i.available %}
                                 <span class="green-dot"></span>
@@ -57,6 +61,63 @@
                 {% endfor %}
             </tbody>
         </table>
+        {% endif %}
+        {% if ow_tcp_services %}
+        <h3>TCP Services</h3>
+        <table>
+            <thead>
+                <tr>
+                    {% for i in ow_services_header %}
+                        <td><b>{{ i }}</b></td>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in ow_tcp_services %}
+                    <tr>
+                        <td>{{ i.name }}</td>
+                        <td>
+                            {%  if i.available %}
+                                <span class="green-dot"></span>
+                            {% else %}
+                                <span class="red-dot"></span>
+                            {% endif %}
+                        </td>
+                        <td>{{ i.up_time }}</td>
+                        <td>{{ i.modification_time | localtime }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+        {% if ow_ping_services %}
+        <h3>Ping Services</h3>
+        <table>
+            <thead>
+                <tr>
+                    {% for i in ow_services_header %}
+                        <td><b>{{ i }}</b></td>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in ow_ping_services %}
+                    <tr>
+                        <td>{{ i.name }}</td>
+                        <td>
+                            {%  if i.available %}
+                                <span class="green-dot"></span>
+                            {% else %}
+                                <span class="red-dot"></span>
+                            {% endif %}
+                        </td>
+                        <td>{{ i.up_time }}</td>
+                        <td>{{ i.modification_time | localtime }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
     {% endif %}
 </body>
 </html>

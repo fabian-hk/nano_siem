@@ -1,11 +1,14 @@
 from typing import Tuple
 import logging
+import operator
+import functools
 import os
 import socket
 import time
 import subprocess
 import requests
 from django.forms.models import model_to_dict
+from django.db.models import Q
 
 from web.models import OverwatchService, OverwatchLog
 
@@ -32,6 +35,10 @@ def run():
     while os.getenv(f"OW_PING_{i}", None):
         ping_availability(os.getenv(f"OW_PING_{i}"))
         i += 1
+
+    # Delete services without a corresponding environment variable from database
+    if os.getenv("OW_REMOVE_OLD_SERVICES", "True") == "True":
+        clean_database()
 
 
 def get_service(config: str, type: str) -> OverwatchService:
@@ -79,13 +86,15 @@ def http_server_availability(config):
     service = get_service(config, "http")
 
     try:
-        response = requests.get(service.host, timeout=5)
+        # Don't verify SSL certificate because we only check for availability
+        response = requests.get(service.host, timeout=5, verify=False, allow_redirects=False)
         time_ms = response.elapsed.total_seconds() * 1000
         logger.debug(f"Time to connect to HTTP server: {time_ms}ms")
         if response.status_code < 400:
             service.available = True
             service.notified = False
         else:
+            time_ms = 0
             service.available = False
     except requests.exceptions.RequestException as e:
         time_ms = 0
@@ -130,6 +139,32 @@ def _parse_config(config: str) -> Tuple[str, str, int]:
     return name, host, port
 
 
+def clean_database():
+    db_entries = []
+    i = 0
+    while os.getenv(f"OW_TCP_{i}", None):
+        name, _, _ = _parse_config(os.getenv(f"OW_TCP_{i}"))
+        db_entries.append((name, "tcp"))
+        i += 1
+    i = 0
+    while os.getenv(f"OW_HTTP_{i}", None):
+        name, _, _ = _parse_config(os.getenv(f"OW_HTTP_{i}"))
+        db_entries.append((name, "http"))
+        i += 1
+    i = 0
+    while os.getenv(f"OW_PING_{i}", None):
+        name, _, _ = _parse_config(os.getenv(f"OW_PING_{i}"))
+        db_entries.append((name, "ping"))
+        i += 1
+
+    query = functools.reduce(
+        operator.or_,
+        (Q(name=name, type=type) for name, type in db_entries),
+    )
+
+    OverwatchService.objects.exclude(query).delete()
+
+
 def is_configured() -> bool:
     ping = os.getenv("OW_PING_0", None)
     tcp = os.getenv("OW_TCP_0", None)
@@ -150,8 +185,10 @@ def sent_notifications() -> bool:
 
 
 def get_data_as_table():
-    rows = []
-    for service in OverwatchService.objects.order_by("type").all():
+    tcp_services = []
+    http_services = []
+    ping_services = []
+    for service in OverwatchService.objects.all():
         up = (
             OverwatchLog.objects.filter(service=service)
             .exclude(latency__exact=0.0)
@@ -162,10 +199,17 @@ def get_data_as_table():
         model_as_dict = model_to_dict(service)
         model_as_dict["up_time"] = f"{int(up_time * 100)}%"
         model_as_dict["modification_time"] = service.modification_time
-        rows.append(model_as_dict)
+        if service.type == "tcp":
+            tcp_services.append(model_as_dict)
+        elif service.type == "http":
+            http_services.append(model_as_dict)
+        elif service.type == "ping":
+            ping_services.append(model_as_dict)
 
     context = {
-        "ow_services_header": ["Name", "Type", "Available", "Up-Time", "Last Updated"],
-        "ow_services": rows,
+        "ow_services_header": ["Name", "Available", "Up-Time", "Last Updated"],
+        "ow_tcp_services": tcp_services,
+        "ow_http_services": http_services,
+        "ow_ping_services": ping_services,
     }
     return context
