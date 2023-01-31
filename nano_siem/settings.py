@@ -29,6 +29,8 @@ ALLOWED_HOSTS = [
     os.getenv("DOMAIN_NAME", "localhost"),
 ]
 
+USE_X_FORWARDED_HOST = os.getenv("USE_X_FORWARDED_HOST") == "True"
+
 # Application definition
 
 SESSION_COOKIE_SECURE = True

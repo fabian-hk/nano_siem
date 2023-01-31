@@ -23,7 +23,7 @@ def cronjob():
         "TRAEFIK_SERVICE_LOG_PATH", "/var/log/traefik_access.log"
     )
     if traefik.is_configured(traefik_service_log_path):
-        traefik_service_name = os.getenv("TRAEFIK_SERVICE_NAME", None)
+        traefik_service_name = os.getenv("TRAEFIK_SERVICE_NAME", "Traefik")
         traefik.run(traefik_service_name, traefik_service_log_path)
 
     # Running overwatch job, if configured
