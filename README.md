@@ -47,8 +47,22 @@ repository.
    2. Create License file: `GeoIP.conf`
    3. Mount license file to: `/etc/GeoIP.conf`
 4. Configure the database (see below)
-5. [Optional] Set a default location for private IPs via the ``PRIVATE_IP_LOCATION_INFO`` environment variable
-6. [Optional] Mount log file for crontab to: `/home/NanoSiem/crontab.log`
+5. Configure Django settings (see below)
+6. Configure Overwatch Module (see below)
+7. If you want to receive email notifications you have to configure the notification settings (see below)
+8. [Optional] Set a default location for private IPs via the ``PRIVATE_IP_LOCATION_INFO`` environment variable
+9. [Optional] Mount log file for crontab to: `/home/NanoSiem/crontab.log`
+
+## Django Settings
+
+```bash
+# Required configuration
+DJANGO_SECRET_KEY=<strong secret key with at least 50 characters>
+DOMAIN_NAME=<domain name of the server>
+
+# Optional configuration
+TIME_ZONE=America/Los_Angeles
+```
 
 ## Database
 
@@ -59,6 +73,45 @@ MYSQL_USER=NanoSiem
 MYSQL_PASSWORD=1234
 MYSQL_HOST=127.0.0.1
 MYSQL_PORT=3306
+```
+
+## Overwatch Module
+
+The Overwatch module checks whether a service is available or not
+every minute. If a service is not available the module will send
+an email notification to the configured email address (Requires
+the notification settings to be configured).
+You can configure as many services per type as you want
+by increasing the numbers at the end of the environment variables.
+
+```bash
+# Configure TCP availability checks
+OW_TCP_0=SSH Server,192.168.178.123,22
+OW_TCP_{i}=<name>,<ip/domain>,<port>
+
+# Configure HTTP availability checks
+OW_HTTP_0=HTTP Server,https://example.com
+OW_HTTP_{i}=<name>,<url>
+
+# Configure Ping availability checks
+OW_PING_0=Ping Server,192.168.178.123
+OW_PING_{i}=<name>,<ip/domain>
+```
+
+## Notification Settings
+
+```bash
+# If not receiver email is set the email will be sent to the same email address
+NOTIFICATION_EMAIL=<email address>
+NOTIFICATION_EMAIL_PASSWORD=<email password>
+# The SMTP server has to support STARTTLS
+NOTIFICATION_EMAIL_SMTP_SERVER=<smtp server>
+
+# Optional configuration (default 587)
+NOTIFICATION_EMAIL_SMTP_PORT=<smtp port>
+
+# Optional configuration, if you want to send emails to a different email address
+NOTIFICATION_EMAIL_RECEIVER=<email address>
 ```
 
 ## [Optional] Traefik Module
@@ -72,9 +125,9 @@ TRAEFIK_SERVICE_LOG_PATH=/var/log/traefik_access.log
 ## [Optional] IP Address to Coordinate Config
 
 ```bash
-# Optional configuration
-GEOLITE2_PATH=/var/data
-
 # Set default values for private IP addresses
 PRIVATE_IP_LOCATION_INFO=65.01236,25.46816,Oulu,Finland,DNA 
+
+# Optional configuration
+GEOLITE2_PATH=/var/data
 ```
