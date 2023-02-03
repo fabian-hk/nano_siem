@@ -46,9 +46,18 @@
         color: black;
         text-decoration: none;
     }
+    .user-info {
+        margin: auto;
+        padding-top: 50px;
+        width: 400px;
+        text-align: center;
+    }
 </style>
 {% load static %}
 <body>
+
+{% include 'top_bar.html' %}
+
 <div class="center container">
     <div class="row">
         <div class="col-lg-6">
@@ -96,6 +105,15 @@
             </a>
         </div>
     </div>
+</div>
+<div class="user-info">
+    <h4 style="padding-bottom: 10px;">User Info</h4>
+    <p>Username: <i>{{ user.username }}</i></p>
+    <p>E-Mail: <i>{{ user.email }}</i></p>
+    <form action="{% url 'oidc_logout' %}" method="post">
+        {% csrf_token %}
+        <input type="submit" class="btn btn-secondary" value="Logout">
+    </form>
 </div>
 </body>
 </html>

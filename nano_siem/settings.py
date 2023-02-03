@@ -38,6 +38,7 @@ CSRF_COOKIE_SECURE = True
 
 INSTALLED_APPS = [
     "django.contrib.auth",
+    "mozilla_django_oidc",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
@@ -55,6 +56,28 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+# Add 'mozilla_django_oidc' authentication backend
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "web.oidc.CustomAuthenticationBackend",
+)
+
+# Configure OP
+OIDC_RP_CLIENT_ID = os.getenv("OIDC_CLIENT_ID", "")
+OIDC_RP_CLIENT_SECRET = os.getenv("OIDC_CLIENT_SECRET", "")
+OIDC_OP_AUTHORIZATION_ENDPOINT = os.getenv("OIDC_AUTHORIZATION_ENDPOINT", "")
+OIDC_OP_TOKEN_ENDPOINT = os.getenv("OIDC_TOKEN_ENDPOINT", "")
+OIDC_OP_USER_ENDPOINT = os.getenv("OIDC_USER_ENDPOINT", "")
+OIDC_OP_JWKS_ENDPOINT = os.getenv("OIDC_JWKS_ENDPOINT", "")
+
+OIDC_RP_SIGN_ALGO = "RS256"
+LOGIN_URL = (
+    "oidc_authentication_init" if os.getenv("OIDC_ENABLED") == "True" else "login"
+)
+LOGIN_REDIRECT_URL = "/"
+OIDC_STORE_ID_TOKEN = True
+OIDC_OP_LOGOUT_URL_METHOD = "web.oidc.user_logout"
 
 ROOT_URLCONF = "nano_siem.urls"
 
@@ -185,6 +208,10 @@ LOGGING = {
             "handlers": ["console"],
             "level": os.getenv("WEB_LOG_LEVEL", "INFO"),
             "propagate": False,
+        },
+        "mozilla_django_oidc": {
+            "handlers": ["console"],
+            "level": os.getenv("MOZILLA_OIDC_LOG_LEVEL", "INFO"),
         },
     },
 }

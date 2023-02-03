@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" style="width: 100%; height: 100%;">
+<head>
+    <title>Nano SIEM</title>
+
+    {% include "header.html" %}
+</head>
+<style>
+    .center {
+        margin: auto;
+        padding-top: 50px;
+        width: 400px;
+    }
+</style>
+<body>
+    <div class="center">
+        {% block content %}
+            <h2>Login</h2>
+            <br>
+            <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-secondary">Login</button>
+            </form>
+        {% endblock %}
+    </div>
+</body>
+</html>

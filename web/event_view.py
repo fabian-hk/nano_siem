@@ -1,12 +1,14 @@
 import logging
 import time
 from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
 
 from .models import ServiceLog
 
 logger = logging.getLogger(__name__)
 
 
+@login_required
 def event_view(request):
     logger.info("Loading event view...")
     t = time.time()

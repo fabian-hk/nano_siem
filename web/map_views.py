@@ -2,6 +2,7 @@ import logging
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.utils.timezone import make_aware
+from django.contrib.auth.decorators import login_required
 from folium import Map, Marker
 from folium.plugins import MarkerCluster, HeatMap
 import time
@@ -14,7 +15,7 @@ logger = logging.getLogger(__name__)
 time_format_str = "%Y-%m-%d"
 
 
-# Create your views here.
+@login_required
 def overview_map_view(request):
     logger.info("Loading overview map...")
     start_coords = (48.78232, 9.17702)
@@ -111,6 +112,7 @@ class MarkerPoint:
         return hash(self.__repr__())
 
 
+@login_required
 def detailed_map_view(request):
     date_range = int(request.GET.get("date_range", "0"))
     if date_range == 0:

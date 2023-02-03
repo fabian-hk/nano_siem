@@ -14,8 +14,9 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 # from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.contrib.auth.views import LoginView
 from web.index_view import index_view
 from web.map_views import overview_map_view, detailed_map_view
 from web.event_view import event_view
@@ -29,6 +30,8 @@ urlpatterns = [
     path("events/", event_view, name="events"),
     path("overwatch/", overwatch_view, name="overwatch"),
     path("api/overwatch/latency-plot/<str:name>", latency_plot, name="latency_plot"),
+    path("oidc/", include("mozilla_django_oidc.urls")),
+    path("accounts/login", LoginView.as_view(), name="login"),
 ]
 
 # To serve static files directly with gunicorn

@@ -1,8 +1,8 @@
 import logging
-import time
 from datetime import datetime, timedelta
 from django.shortcuts import render
 from django.utils.timezone import make_aware
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 import matplotlib.pyplot as plt
 import io
@@ -13,11 +13,13 @@ from plugins import overwatch
 logger = logging.getLogger(__name__)
 
 
+@login_required
 def overwatch_view(request):
     context = overwatch.get_data_as_table()
     return render(request, "overwatch_view.html", context)
 
 
+@login_required
 def latency_plot(request, name):
     service = OverwatchService.objects.get(name=name)
 

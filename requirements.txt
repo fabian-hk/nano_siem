@@ -30,3 +30,4 @@ sqlparse==0.4.3
 tzdata==2022.6
 urllib3==1.26.12
 yarl==1.8.1
+mozilla-django-oidc==3.0.0

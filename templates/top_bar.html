@@ -1,0 +1,25 @@
+{% load static %}
+<style>
+    .icon-envelop {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: fit-content;
+        padding-left: 10px;
+        padding-top: 10px;
+    }
+    a {
+        color: black;
+        text-decoration: none;
+    }
+    a:hover {
+        color: black;
+        text-decoration: none;
+    }
+</style>
+<a href="{%   url 'index' %}">
+    <div class="icon-envelop">
+        <img src="{% static 'img/web-security-icon.png' %}" class="float-left" alt="Nano SIEM" width="50px" height="55px">
+        <h4 style="padding-left: 10px">Nano SIEM</h4>
+    </div>
+</a>
