@@ -17,9 +17,39 @@
         text-decoration: none;
     }
 </style>
-<a href="{%   url 'index' %}">
-    <div class="icon-envelop">
-        <img src="{% static 'img/web-security-icon.png' %}" class="float-left" alt="Nano SIEM" width="50px" height="55px">
-        <h4 style="padding-left: 10px">Nano SIEM</h4>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a href="{%   url 'index' %}">
+        <div class="icon-envelop">
+            <img src="{% static 'img/web-security-icon.png' %}" class="float-left" alt="Nano SIEM" width="50px" height="55px">
+            <h5 style="padding-left: 10px">Nano SIEM</h5>
+        </div>
+    </a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNav" style="margin-left: 10px;">
+    <ul class="navbar-nav">
+      <li class="nav-item active">
+        <a class="nav-link" href="{%   url 'index' %}">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'overview_map' %}">Overview Map</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'detailed_map' %}">Detailed Map</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'events' %}">Events</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'overwatch' %}">Overwatch</a>
+      </li>
+    </ul>
+  </div>
+    <div style="margin-right: 20px">
+        <form action="{% url 'oidc_logout' %}" method="post">
+            {% csrf_token %}
+            <input type="submit" class="btn btn-secondary" value="Logout">
+        </form>
     </div>
-</a>
+</nav>
