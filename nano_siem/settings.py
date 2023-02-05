@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import os
+import requests
+import json
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -64,16 +66,29 @@ AUTHENTICATION_BACKENDS = (
 )
 
 # Configure OP
-OIDC_RP_CLIENT_ID = os.getenv("OIDC_CLIENT_ID", "")
-OIDC_RP_CLIENT_SECRET = os.getenv("OIDC_CLIENT_SECRET", "")
-OIDC_OP_AUTHORIZATION_ENDPOINT = os.getenv("OIDC_AUTHORIZATION_ENDPOINT", "")
-OIDC_OP_TOKEN_ENDPOINT = os.getenv("OIDC_TOKEN_ENDPOINT", "")
-OIDC_OP_USER_ENDPOINT = os.getenv("OIDC_USER_ENDPOINT", "")
-OIDC_OP_JWKS_ENDPOINT = os.getenv("OIDC_JWKS_ENDPOINT", "")
+OIDC_CONFIGURATION = {}
+
+if os.getenv("OIDC_DISCOVERY_DOCUMENT", None):
+    response = requests.get(os.getenv("OIDC_DISCOVERY_DOCUMENT"))
+    if response.status_code == 200:
+        OIDC_CONFIGURATION = json.loads(response.text)
+    else:
+        print(
+            f"Failed to load OIDC configuration from {os.getenv('OIDC_DISCOVERY_DOCUMENT')}. Status code: {response.status_code}"
+        )
+
+    OIDC_RP_CLIENT_ID = os.getenv("OIDC_CLIENT_ID", "")
+    OIDC_RP_CLIENT_SECRET = os.getenv("OIDC_CLIENT_SECRET", "")
+    OIDC_OP_AUTHORIZATION_ENDPOINT = OIDC_CONFIGURATION["authorization_endpoint"]
+    OIDC_OP_TOKEN_ENDPOINT = OIDC_CONFIGURATION["token_endpoint"]
+    OIDC_OP_USER_ENDPOINT = OIDC_CONFIGURATION["userinfo_endpoint"]
+    OIDC_OP_JWKS_ENDPOINT = OIDC_CONFIGURATION["jwks_uri"]
 
 OIDC_RP_SIGN_ALGO = "RS256"
 LOGIN_URL = (
-    "oidc_authentication_init" if os.getenv("OIDC_ENABLED") == "True" else "login"
+    "oidc_authentication_init"
+    if os.getenv("OIDC_DISCOVERY_DOCUMENT", None)
+    else "login"
 )
 LOGIN_REDIRECT_URL = "/"
 OIDC_STORE_ID_TOKEN = True

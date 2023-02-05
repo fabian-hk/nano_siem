@@ -36,35 +36,21 @@ can be found there.
 Running the application on your own server is quite easy.
 You just have to follow the instruction below 
 and / or look at the docker-compose file in this
-repository.
+repository. You can pull the ready to use Docker image
+from ``docker pull fabianhk/nano-siem``.
 
-## Setup
-
-1. Pull Docker image from [Docker Hub](https://hub.docker.com/r/fabianhk/nano-siem): ``docker pull fabianhk/nano-siem``
-2. Mount Traefik access log to: `/var/log/traefik_access.log`
-3. Setup GeoLite2 Free database:
-   1. Create an account at [MAXMIND](https://dev.maxmind.com/geoip/geolite2-free-geolocation-data?lang=en)
-   2. Create License file: `GeoIP.conf`
-   3. Mount license file to: `/etc/GeoIP.conf`
-4. Configure the database (see below)
-5. Configure Django settings (see below)
-6. Configure Overwatch Module (see below)
-7. If you want to receive email notifications you have to configure the notification settings (see below)
-8. [Optional] Set a default location for private IPs via the ``PRIVATE_IP_LOCATION_INFO`` environment variable
-9. [Optional] Mount log file for crontab to: `/home/NanoSiem/crontab.log`
-
-## Django Settings
+## [Required] Django Settings
 
 ```bash
-# Required configuration
 DJANGO_SECRET_KEY=<strong secret key with at least 50 characters>
 DOMAIN_NAME=<domain name of the server>
-
-# Optional configuration
-TIME_ZONE=America/Los_Angeles
 ```
 
-## Database
+**Only of debugging:**
+If you want to see the logs of the cronjob you have to mount 
+a log file to: ``/home/NanoSiem/crontab.log``.
+
+### Database
 
 ```bash
 # Required configuration
@@ -72,12 +58,26 @@ MYSQL_DB_NAME=NanoSiem
 MYSQL_USER=NanoSiem
 MYSQL_PASSWORD=1234
 MYSQL_HOST=127.0.0.1
-MYSQL_PORT=3306
 ```
 
 - Run migrations from command line: ``docker exec -it <container name> python3 manage.py migrate``
 
-## Authentication
+### Authentication
+
+#### OpenID Connect
+
+The OpenID Connect login is tested with the Keycloak authorization server.
+
+```bash
+OIDC_CLIENT_ID=<CLIENT_ID>
+OIDC_CLIENT_SECRET=<CLIENT_SECRET>
+
+# If this variable is set, the application will use OpenID Connect
+# instead of the default Django authentication.
+OIDC_DISCOVERY_DOCUMENT=<IDP_URL>/.well-known/openid-configuration
+```
+
+#### Default Django Authentication
 
 If you don't use OpenID Connect for authentication you have to
 create a superuser account. You can do this by running the
@@ -88,59 +88,63 @@ docker exec -it <container name> python3 manage.py createsuperuser
 ```
 
 
+
+## Notification Settings
+
+```bash
+NOTIFICATION_EMAIL=<email address>
+NOTIFICATION_EMAIL_PASSWORD=<email password>
+# The SMTP server has to support STARTTLS
+NOTIFICATION_EMAIL_SMTP_SERVER=<smtp server>
+```
+
+## Traefik Module
+
+1. Mount Traefik access log to: `/var/log/traefik_access.log`
+2. Setup GeoLite2 Free database:
+   1. Create an account at [MAXMIND](https://dev.maxmind.com/geoip/geolite2-free-geolocation-data?lang=en)
+   2. Create License file: `GeoIP.conf`
+   3. Mount license file to: `/etc/GeoIP.conf`
+
+### [Optional] IP Address to Coordinate Config
+
+```bash
+# Set default values for private IP addresses (can't be resolved by GeoLite2 db)
+PRIVATE_IP_LOCATION_INFO=65.01236,25.46816,Oulu,Finland,DNA 
+```
+
 ## Overwatch Module
 
 The Overwatch module checks whether a service is available or not
 every minute. If a service is not available the module will send
 an email notification to the configured email address (Requires
 the notification settings to be configured).
-You can configure as many services per type as you want
-by increasing the numbers at the end of the environment variables.
+You can configure as many services as you want
+by increasing the numbers at the end of the environment variable.
+The pair of name and type has to be unique. The type can be one of
+the following: ``http``, ``tcp``, ``ping`` or ``disk``.
 
 ```bash
-# Configure TCP availability checks
-OW_TCP_0=SSH Server,192.168.178.123,22
-OW_TCP_{i}=<name>,<ip/domain>,<port>
+# HTTP example
+OVERWATCH_0=Name,http,https://example.com
+OVERWATCH_{i}=Name,http,<url>
 
-# Configure HTTP availability checks
-OW_HTTP_0=HTTP Server,https://example.com
-OW_HTTP_{i}=<name>,<url>
+# TCP example
+OVERWATCH_1=Name,tcp,example.com,22
+OVERWATCH_{i}=Name,tcp,<domain/ip>,<port>
 
-# Configure Ping availability checks
-OW_PING_0=Ping Server,192.168.178.123
-OW_PING_{i}=<name>,<ip/domain>
+# Ping
+OVERWATCH_2=Name,ping,example.com
+OVERWATCH_{i}=Name,ping,<domain/ip>
+
+# Disk
+OVERWATCH_3=Name,disk,/dev/sda1,/media/usb,58d775d2-1fcb-4d10-aee5-cb956a86abd3
+OVERWATCH_{i}=Name,disk,<device>,<mount point>,<uuid>
 ```
 
-## Notification Settings
+**Notes on the disk availability check:** You have to mount the root filesystem
+to ``/mnt/rootfs`` as a read-only filesystem.
 
-```bash
-# If not receiver email is set the email will be sent to the same email address
-NOTIFICATION_EMAIL=<email address>
-NOTIFICATION_EMAIL_PASSWORD=<email password>
-# The SMTP server has to support STARTTLS
-NOTIFICATION_EMAIL_SMTP_SERVER=<smtp server>
+## All Configuration Options
 
-# Optional configuration (default 587)
-NOTIFICATION_EMAIL_SMTP_PORT=<smtp port>
-
-# Optional configuration, if you want to send emails to a different email address
-NOTIFICATION_EMAIL_RECEIVER=<email address>
-```
-
-## [Optional] Traefik Module
-
-```bash
-# Optional configuration
-TRAEFIK_SERVICE_NAME=Traefik
-TRAEFIK_SERVICE_LOG_PATH=/var/log/traefik_access.log
-```
-
-## [Optional] IP Address to Coordinate Config
-
-```bash
-# Set default values for private IP addresses
-PRIVATE_IP_LOCATION_INFO=65.01236,25.46816,Oulu,Finland,DNA 
-
-# Optional configuration
-GEOLITE2_PATH=/var/data
-```
+You can find all configuration options in the file [configuration.md](doc/configuration.md).

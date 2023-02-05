@@ -1,7 +1,6 @@
 import os
 import logging
 import smtplib
-import ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from django.template.loader import render_to_string
@@ -45,6 +44,7 @@ def send_notifications():
         message.attach(part1)
 
         # Render the HTML content for the email
+        data["instance_name"] = os.getenv("INSTANCE_NAME", "My Nano SIEM")
         html = render_to_string("notification_template.html", context=data)
         part2 = MIMEText(html, "html")
         message.attach(part2)

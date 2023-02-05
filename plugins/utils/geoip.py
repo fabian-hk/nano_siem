@@ -13,10 +13,10 @@ geoip2_default_path = "/home/NanoSiem/.nano_siem/geolite2"
 
 def ip_to_coordinates(input: str) -> Tuple[float, float, str, str, str]:
     geolite2_city_db_path = (
-        f"{os.getenv('GEOLITE2_PATH', geoip2_default_path)}/GeoLite2-City.mmdb"
+        f"{geoip2_default_path}/GeoLite2-City.mmdb"
     )
     geolite2_asn_db_path = (
-        f"{os.getenv('GEOLITE2_PATH', geoip2_default_path)}/GeoLite2-ASN.mmdb"
+        f"{geoip2_default_path}/GeoLite2-ASN.mmdb"
     )
 
     try:

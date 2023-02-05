@@ -55,7 +55,7 @@
         <tbody>
             {% for i in ow_http_services %}
                 <tr class="clickable-row" data-name="{{ i.name }}" data-type="http">
-                    <td>{{ i.name }}</td>
+                    <td data-toggle="tooltip" data-placement="right" title="{{ i.details }}">{{ i.name }}</td>
                     <td>
                         {%  if i.available %}
                             <span class="green-dot" data-toggle="tooltip" data-placement="right" title="Available"></span>
@@ -83,7 +83,7 @@
         <tbody>
             {% for i in ow_tcp_services %}
                 <tr class="clickable-row" data-name="{{ i.name }}" data-type="tcp">
-                    <td>{{ i.name }}</td>
+                    <td data-toggle="tooltip" data-placement="right" title="{{ i.details }}">{{ i.name }}</td>
                     <td>
                         {%  if i.available %}
                             <span class="green-dot" data-toggle="tooltip" data-placement="right" title="Available"></span>
@@ -111,7 +111,7 @@
         <tbody>
             {% for i in ow_ping_services %}
                 <tr class="clickable-row" data-name="{{ i.name }}" data-type="ping">
-                    <td>{{ i.name }}</td>
+                    <td data-toggle="tooltip" data-placement="right" title="{{ i.details }}">{{ i.name }}</td>
                     <td>
                         {%  if i.available %}
                             <span class="green-dot" data-toggle="tooltip" data-placement="right" title="Available"></span>

@@ -110,7 +110,7 @@ class IDSRules:
                 self.user_agent_count += 1
                 self._user_agent_match(p)
 
-        return max(event_score, default=0) +  max(user_agent_score, default=0)
+        return max(event_score, default=0) + max(user_agent_score, default=0)
 
     def _event_match(self, p: str):
         if p in self.event_match.keys():

@@ -144,9 +144,6 @@ def run(name, log_path):
                         service.log_position = i
                         service.save()
 
-                if i == 7000000:
-                    break
-
             if service.log_position < i:
                 # Save remaining log lines to the database
                 ServiceLog.objects.bulk_create(transaction_bulk, ignore_conflicts=True)
@@ -156,7 +153,7 @@ def run(name, log_path):
                 service.log_position = i
                 service.save()
 
-        ids_rules.print_ids_stats()
+        # ids_rules.print_ids_stats()
 
         logger.info(f"End log parsing for {name} job")
         service.running = False

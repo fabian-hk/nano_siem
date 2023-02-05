@@ -19,28 +19,17 @@ logger = logging.getLogger(__name__)
 def run():
     logger.info("Run overwatch job")
 
-    # Check the availability of all configured disk services
     i = 0
-    while os.getenv(f"OW_DISK_{i}", None):
-        disk_availability(os.getenv(f"OW_DISK_{i}"))
-        i += 1
-
-    # Check the availability of all configured TCP servers
-    i = 0
-    while os.getenv(f"OW_TCP_{i}", None):
-        tcp_server_availability(os.getenv(f"OW_TCP_{i}"))
-        i += 1
-
-    # Check the availability of all configured HTTP servers
-    i = 0
-    while os.getenv(f"OW_HTTP_{i}", None):
-        http_server_availability(os.getenv(f"OW_HTTP_{i}"))
-        i += 1
-
-    # Check the availability of all configured ping hosts
-    i = 0
-    while os.getenv(f"OW_PING_{i}", None):
-        ping_availability(os.getenv(f"OW_PING_{i}"))
+    while os.getenv(f"OVERWATCH_{i}", None):
+        name, type = _parse_config(os.getenv(f"OVERWATCH_{i}"))
+        if type == "disk":
+            disk_availability(os.getenv(f"OVERWATCH_{i}"))
+        elif type == "tcp":
+            tcp_server_availability(os.getenv(f"OVERWATCH_{i}"))
+        elif type == "http":
+            http_server_availability(os.getenv(f"OVERWATCH_{i}"))
+        elif type == "ping":
+            ping_availability(os.getenv(f"OVERWATCH_{i}"))
         i += 1
 
     # Delete services without a corresponding environment variable from database
@@ -49,7 +38,11 @@ def run():
 
 
 def get_network_service(config: str, type: str) -> NetworkService:
-    name, host, port = _parse_config(config)
+    config_split = config.split(",")
+    name = config_split[0]
+    host = config_split[2]
+    port = config_split[3] if len(config_split) > 3 else 0
+
     if NetworkService.objects.filter(name=name, type=type).exists():
         service = NetworkService.objects.get(name=name, type=type)
         service.host = host
@@ -144,11 +137,11 @@ def get_disk_service(config: str) -> DiskService:
     config_split = config.split(",")
     if len(config_split) > 2:
         name = config_split[0]
-        device = config_split[1]
-        mount_point = config_split[2]
+        device = config_split[2]
+        mount_point = config_split[3]
         uuid = None
-        if len(config_split) > 3:
-            uuid = config_split[3]
+        if len(config_split) > 4:
+            uuid = config_split[4]
         if DiskService.objects.filter(name=name, type="disk").exists():
             service = DiskService.objects.get(name=name, type="disk")
             service.device = device
@@ -209,6 +202,7 @@ def disk_availability(config: str):
     usage_free = 0
     usage_used = 0
     if available:
+        # Encode the mount_path in this way to avoid problems with backslashes
         disk_usage = shutil.disk_usage(
             (path_prefix + service.mount_point)
             .encode("latin1")
@@ -226,64 +220,46 @@ def disk_availability(config: str):
     ).save()
 
 
-def _parse_config(config: str) -> Tuple[str, str, int]:
+def _parse_config(config: str) -> Tuple[str, str]:
     config = config.split(",")
     name = config[0]
-    host = config[1]
-    port = 0
-    if len(config) == 3:
-        port = int(config[2])
-    return name, host, port
+    type = config[1]
+    return name, type
 
 
 def clean_database():
-    # Clean network services by collecting all existing services
+    # Clean service tables by collecting all existing services
     # and removing all services that are not in the list anymore.
-    db_entries = []
+    network_services = []
+    disk_services = []
     i = 0
-    while os.getenv(f"OW_TCP_{i}", None):
-        name, _, _ = _parse_config(os.getenv(f"OW_TCP_{i}"))
-        db_entries.append((name, "tcp"))
-        i += 1
-    i = 0
-    while os.getenv(f"OW_HTTP_{i}", None):
-        name, _, _ = _parse_config(os.getenv(f"OW_HTTP_{i}"))
-        db_entries.append((name, "http"))
-        i += 1
-    i = 0
-    while os.getenv(f"OW_PING_{i}", None):
-        name, _, _ = _parse_config(os.getenv(f"OW_PING_{i}"))
-        db_entries.append((name, "ping"))
+    while os.getenv(f"OVERWATCH_{i}", None):
+        name, type = _parse_config(os.getenv(f"OVERWATCH_{i}"))
+        if type == "disk":
+            disk_services.append((name, type))
+        else:
+            network_services.append((name, type))
         i += 1
 
+    # Build query with OR operation to keep all existing services
     query = functools.reduce(
         operator.or_,
-        (Q(name=name, type=type) for name, type in db_entries),
+        (Q(name=name, type=type) for name, type in network_services),
     )
 
+    # Delete all services except for the existing ones
     NetworkService.objects.exclude(query).delete()
-
-    # Clean up the disk services in the same way
-    db_entries = []
-    i = 0
-    while os.getenv(f"OW_DISK_{i}", None):
-        name = os.getenv(f"OW_DISK_{i}").split(",")[0]
-        db_entries.append((name, "disk"))
-        i += 1
 
     query = functools.reduce(
         operator.or_,
-        (Q(name=name, type=type) for name, type in db_entries),
+        (Q(name=name, type=type) for name, type in disk_services),
     )
 
     DiskService.objects.exclude(query).delete()
 
 
 def is_configured() -> bool:
-    ping = os.getenv("OW_PING_0", None)
-    tcp = os.getenv("OW_TCP_0", None)
-    http = os.getenv("OW_HTTP_0", None)
-    if ping or tcp or http:
+    if os.getenv("OVERWATCH_0", None):
         return True
     return False
 
@@ -320,6 +296,9 @@ def get_data_as_table():
         model_as_dict = model_to_dict(service)
         model_as_dict["up_time"] = f"{int(up_time * 100)}%"
         model_as_dict["modification_time"] = service.modification_time
+        model_as_dict["details"] = (
+            f"{service.host} // {service.port}" if service.port != 0 else service.host
+        )
         if service.type == "tcp":
             tcp_services.append(model_as_dict)
         elif service.type == "http":

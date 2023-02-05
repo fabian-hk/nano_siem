@@ -4,9 +4,11 @@ from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 from django.contrib.auth import logout
 from django.urls import reverse
 
+from nano_siem.settings import OIDC_CONFIGURATION
+
 
 def user_logout(request):
-    if os.getenv("OIDC_ENABLED") == "True":
+    if os.getenv("OIDC_DISCOVERY_DOCUMENT", None):
         query = {
             "post_logout_redirect_uri": request.build_absolute_uri(
                 reverse("oidc_authentication_init")
@@ -15,7 +17,7 @@ def user_logout(request):
             "client_id": os.getenv("OIDC_CLIENT_ID"),
         }
         query_string = urlencode(query)
-        return f"{os.getenv('OIDC_LOGOUT_ENDPOINT')}?{query_string}"
+        return f"{OIDC_CONFIGURATION['end_session_endpoint']}?{query_string}"
     else:
         logout(request)
         return reverse("login")
