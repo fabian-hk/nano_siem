@@ -53,14 +53,16 @@ a log file to: ``/home/NanoSiem/crontab.log``.
 ### Database
 
 ```bash
-# Required configuration
 MYSQL_DB_NAME=NanoSiem
 MYSQL_USER=NanoSiem
 MYSQL_PASSWORD=1234
 MYSQL_HOST=127.0.0.1
 ```
 
-- Run migrations from command line: ``docker exec -it <container name> python3 manage.py migrate``
+```bash
+# Run migrations from command line
+docker exec -it <container name> python3 manage.py migrate
+```
 
 ### Authentication
 
@@ -77,7 +79,7 @@ OIDC_CLIENT_SECRET=<CLIENT_SECRET>
 OIDC_DISCOVERY_DOCUMENT=<IDP_URL>/.well-known/openid-configuration
 ```
 
-#### Default Django Authentication
+#### ALTERNATIVE: Default Django Authentication
 
 If you don't use OpenID Connect for authentication you have to
 create a superuser account. You can do this by running the

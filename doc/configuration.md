@@ -33,7 +33,6 @@ NOTIFICATION_EMAIL_PASSWORD=<email password>
 # The SMTP server has to support STARTTLS
 NOTIFICATION_EMAIL_SMTP_SERVER=<smtp server>
 
-# Optional configuration (default 587)
 NOTIFICATION_EMAIL_SMTP_PORT=<smtp port> # Default 587
 
 # If you want to send emails to a different email address
