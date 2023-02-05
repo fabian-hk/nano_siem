@@ -166,7 +166,8 @@ def run(name, log_path):
 
 
 def is_configured(log_path: str) -> bool:
-    return os.stat(log_path).st_size > 0
+    log_file = Path(log_path)
+    return log_file.exists() and os.stat(log_path).st_size > 0
 
 
 if __name__ == "__main__":

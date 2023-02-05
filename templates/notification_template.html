@@ -118,6 +118,34 @@
             </tbody>
         </table>
         {% endif %}
+        {% if ow_disk_services %}
+        <h3>Disk Services</h3>
+        <table>
+            <thead>
+                <tr>
+                    {% for i in ow_services_header %}
+                        <td><b>{{ i }}</b></td>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in ow_disk_services %}
+                    <tr>
+                        <td>{{ i.name }}</td>
+                        <td>
+                            {%  if i.available %}
+                                <span class="green-dot"></span>
+                            {% else %}
+                                <span class="red-dot"></span>
+                            {% endif %}
+                        </td>
+                        <td>{{ i.up_time }}</td>
+                        <td>{{ i.modification_time | localtime }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
     {% endif %}
 </body>
 </html>

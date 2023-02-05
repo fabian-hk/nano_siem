@@ -75,6 +75,19 @@ MYSQL_HOST=127.0.0.1
 MYSQL_PORT=3306
 ```
 
+- Run migrations from command line: ``docker exec -it <container name> python3 manage.py migrate``
+
+## Authentication
+
+If you don't use OpenID Connect for authentication you have to
+create a superuser account. You can do this by running the
+following command in the container:
+
+```bash
+docker exec -it <container name> python3 manage.py createsuperuser
+```
+
+
 ## Overwatch Module
 
 The Overwatch module checks whether a service is available or not

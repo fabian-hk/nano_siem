@@ -7,7 +7,7 @@ from django.http import HttpResponse
 import matplotlib.pyplot as plt
 import io
 
-from .models import OverwatchService, OverwatchLog
+from .models import NetworkService, NetworkServiceLog, DiskService, DiskServiceLog
 from plugins import overwatch
 
 logger = logging.getLogger(__name__)
@@ -19,13 +19,12 @@ def overwatch_view(request):
     return render(request, "overwatch_view.html", context)
 
 
-@login_required
-def latency_plot(request, name):
-    service = OverwatchService.objects.get(name=name)
+def plot_network_service(name: str, type: str):
+    service = NetworkService.objects.get(name=name, type=type)
 
     start_date = make_aware(datetime.today() - timedelta(days=7))
     logs = (
-        OverwatchLog.objects.filter(service=service, timestamp__gte=start_date)
+        NetworkServiceLog.objects.filter(service=service, timestamp__gte=start_date)
         .order_by("timestamp")
         .all()
     )
@@ -36,12 +35,43 @@ def latency_plot(request, name):
         timestamps.append(log.timestamp)
         latencies.append(log.latency)
 
+    plt.plot(timestamps, latencies)
+    plt.title(f"{service.name} Latency Plot")
+    plt.ylabel("Latency (ms)")
+
+
+def plot_disk_service(name: str, type: str):
+    service = DiskService.objects.get(name=name, type=type)
+
+    start_date = make_aware(datetime.today() - timedelta(days=7))
+    logs = (
+        DiskServiceLog.objects.filter(service=service, timestamp__gte=start_date)
+        .order_by("timestamp")
+        .all()
+    )
+
+    timestamps = []
+    availability = []
+    for log in logs:
+        timestamps.append(log.timestamp)
+        availability.append(int(log.available))
+
+    plt.plot(timestamps, availability)
+    plt.title(f"{service.name} Availability Plot")
+    plt.ylabel("Available")
+    plt.ylim([0, 1.5])
+
+
+@login_required
+def latency_plot(request, name: str, type: str):
     plt.figure(figsize=(10, 5))
     plt.rcParams["font.size"] = 12
-    plt.plot(timestamps, latencies)
-    plt.title(name)
+    if type == "disk":
+        plot_disk_service(name, type)
+    else:
+        plot_network_service(name, type)
     plt.xlabel("Date")
-    plt.ylabel("Latency (ms)")
+
     svg_str = io.BytesIO()
     plt.savefig(svg_str, format="svg")
     plt.close()

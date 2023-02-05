@@ -12,6 +12,7 @@ services:
       - $PWD/../nano_siem_data/access.log:/var/log/traefik_access.log
       - $PWD/../nano_siem_data/GeoIP.conf:/etc/GeoIP.conf
       - $PWD/crontab.log:/home/NanoSiem/.nano_siem/crontab.log
+      - /:/mnt/rootfs:ro
     network_mode: host
 
   nano_siem_db:

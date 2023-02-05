@@ -54,7 +54,7 @@
         </thead>
         <tbody>
             {% for i in ow_http_services %}
-                <tr class="clickable-row" data-name="{{ i.name }}">
+                <tr class="clickable-row" data-name="{{ i.name }}" data-type="http">
                     <td>{{ i.name }}</td>
                     <td>
                         {%  if i.available %}
@@ -82,7 +82,7 @@
         </thead>
         <tbody>
             {% for i in ow_tcp_services %}
-                <tr class="clickable-row" data-name="{{ i.name }}">
+                <tr class="clickable-row" data-name="{{ i.name }}" data-type="tcp">
                     <td>{{ i.name }}</td>
                     <td>
                         {%  if i.available %}
@@ -110,7 +110,7 @@
         </thead>
         <tbody>
             {% for i in ow_ping_services %}
-                <tr class="clickable-row" data-name="{{ i.name }}">
+                <tr class="clickable-row" data-name="{{ i.name }}" data-type="ping">
                     <td>{{ i.name }}</td>
                     <td>
                         {%  if i.available %}
@@ -125,6 +125,34 @@
             {% endfor %}
         </tbody>
     </table>
+    {% endif %}
+    {% if ow_disk_services %}
+        <h3>Disk Services</h3>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    {% for i in ow_services_header %}
+                        <td><b>{{ i }}</b></td>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in ow_disk_services %}
+                    <tr class="clickable-row" data-name="{{ i.name }}" data-type="disk">
+                        <td data-toggle="tooltip" data-placement="right" title="{{ i.details }}">{{ i.name }}</td>
+                        <td>
+                            {%  if i.available %}
+                                <span class="green-dot" data-toggle="tooltip" data-placement="right" title="Available"></span>
+                            {% else %}
+                                <span class="red-dot" data-toggle="tooltip" data-placement="right" title="Unavailable"></span>
+                            {% endif %}
+                        </td>
+                        <td>{{ i.up_time }}</td>
+                        <td>{{ i.modification_time | localtime }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     {% endif %}
 
     <!-- The Modal -->
@@ -159,8 +187,8 @@
     })
     jQuery(document).ready(function($) {
         $(".clickable-row").click(function() {
-            $("#modal-title").text($(this).data("name") + " Latency Graph");
-            $("#latency-plot").attr("src", "/api/overwatch/latency-plot/" + $(this).data("name"));
+            $("#modal-title").text($(this).data("name") + " Availability");
+            $("#latency-plot").attr("src", "/api/overwatch/latency-plot/" + $(this).data("type") + "/" + $(this).data("name"));
             $("#myModal").modal("show");
         });
     });

@@ -29,7 +29,7 @@ urlpatterns = [
     path("map/detailed/", detailed_map_view, name="detailed_map"),
     path("events/", event_view, name="events"),
     path("overwatch/", overwatch_view, name="overwatch"),
-    path("api/overwatch/latency-plot/<str:name>", latency_plot, name="latency_plot"),
+    path("api/overwatch/latency-plot/<str:type>/<str:name>", latency_plot, name="latency_plot"),
     path("oidc/", include("mozilla_django_oidc.urls")),
     path("accounts/login", LoginView.as_view(), name="login"),
 ]
