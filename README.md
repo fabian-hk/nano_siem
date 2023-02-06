@@ -27,7 +27,7 @@ a new plugin and open a pull request.
 # Demo
 
 If you want to check out the implementation with example
-data you can go to the [demo/](demo/) folder.
+data you can go to the [doc/demo/](doc/demo/) folder.
 Further instructions how to run the application
 can be found there.
 
@@ -44,6 +44,7 @@ from ``docker pull fabianhk/nano-siem``.
 ```bash
 DJANGO_SECRET_KEY=<strong secret key with at least 50 characters>
 DOMAIN_NAME=<domain name of the server>
+URL=<full url e.g. https://www.example.com>
 ```
 
 **Only of debugging:**

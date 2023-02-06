@@ -30,6 +30,9 @@ DEBUG = os.getenv("DEBUG") == "True"
 ALLOWED_HOSTS = [
     os.getenv("DOMAIN_NAME", "localhost"),
 ]
+CSRF_TRUSTED_ORIGINS = [
+    os.getenv("URL", "http://localhost:8000"),
+]
 
 USE_X_FORWARDED_HOST = os.getenv("USE_X_FORWARDED_HOST") == "True"
 
@@ -46,7 +49,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_crontab",
-    "web",
+    "main",
+    "plugins.overwatch",
+    "plugins.http_logs",
+    "main.notifications"
 ]
 
 MIDDLEWARE = [
@@ -61,8 +67,7 @@ MIDDLEWARE = [
 
 # Add 'mozilla_django_oidc' authentication backend
 AUTHENTICATION_BACKENDS = (
-    "django.contrib.auth.backends.ModelBackend",
-    "web.oidc.CustomAuthenticationBackend",
+     "main.oidc.CustomAuthenticationBackend" if os.getenv("OIDC_DISCOVERY_DOCUMENT", None) else "django.contrib.auth.backends.ModelBackend",
 )
 
 # Configure OP
@@ -92,7 +97,7 @@ LOGIN_URL = (
 )
 LOGIN_REDIRECT_URL = "/"
 OIDC_STORE_ID_TOKEN = True
-OIDC_OP_LOGOUT_URL_METHOD = "web.oidc.user_logout"
+OIDC_OP_LOGOUT_URL_METHOD = "main.oidc.user_logout"
 
 ROOT_URLCONF = "nano_siem.urls"
 
@@ -107,6 +112,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "main.context_processors.template_env_vars"
             ],
         },
     },
@@ -177,7 +183,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CRONJOBS = [
     (
         "*/1 * * * *",
-        "cron.cronjob.cronjob",
+        "main.cronjob.cronjob",
         ">> /home/NanoSiem/.nano_siem/crontab.log 2>&1",
     )
 ]
@@ -219,7 +225,7 @@ LOGGING = {
             "level": os.getenv("CRON_LOG_LEVEL", "INFO"),
             "propagate": False,
         },
-        "web": {
+        "main": {
             "handlers": ["console"],
             "level": os.getenv("WEB_LOG_LEVEL", "INFO"),
             "propagate": False,

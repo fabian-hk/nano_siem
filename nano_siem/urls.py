@@ -17,10 +17,10 @@ Including another URLconf
 from django.urls import path, include
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.contrib.auth.views import LoginView
-from web.index_view import index_view
-from web.map_views import overview_map_view, detailed_map_view
-from web.event_view import event_view
-from web.overwatch_view import overwatch_view, latency_plot
+from main.view import index_view
+from plugins.http_logs.map_views import overview_map_view, detailed_map_view
+from plugins.http_logs.event_view import event_view
+from plugins.overwatch.view import overwatch_view, latency_plot
 
 urlpatterns = [
     #    path('admin/', admin.site.urls),

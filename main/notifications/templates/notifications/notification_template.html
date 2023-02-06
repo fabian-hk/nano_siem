@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Email Notification</title>
+</head>
+
+<style>
+    td {
+        padding: 10px;
+    }
+    h2 {
+        margin-top: 30px;
+    }
+</style>
+
+<body>
+    <h1>Nano SIEM Notifications</h1>
+    <p>Instance name: <i>{{ instance_name }}</i></p>
+    {% include 'overwatch/notifications.html' %}
+</body>
+</html>

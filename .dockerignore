@@ -3,6 +3,6 @@ venv/
 __pycache__/
 .git/
 .gitignore
-demo/
+doc/
 .env
 crontab.log
