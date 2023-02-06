@@ -8,6 +8,7 @@ that can be used to configure the application.
 ```bash
 DJANGO_SECRET_KEY=<strong secret key with at least 50 characters>
 DOMAIN_NAME=<domain name of the server>
+URL=<full url e.g. https://www.example.com>
 
 TIME_ZONE=America/Los_Angeles
 
