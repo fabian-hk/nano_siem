@@ -35,6 +35,7 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 USE_X_FORWARDED_HOST = os.getenv("USE_X_FORWARDED_HOST") == "True"
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # Application definition
 
@@ -52,7 +53,7 @@ INSTALLED_APPS = [
     "main",
     "plugins.overwatch",
     "plugins.http_logs",
-    "main.notifications"
+    "main.notifications",
 ]
 
 MIDDLEWARE = [
@@ -67,7 +68,9 @@ MIDDLEWARE = [
 
 # Add 'mozilla_django_oidc' authentication backend
 AUTHENTICATION_BACKENDS = (
-     "main.oidc.CustomAuthenticationBackend" if os.getenv("OIDC_DISCOVERY_DOCUMENT", None) else "django.contrib.auth.backends.ModelBackend",
+    "main.oidc.CustomAuthenticationBackend"
+    if os.getenv("OIDC_DISCOVERY_DOCUMENT", None)
+    else "django.contrib.auth.backends.ModelBackend",
 )
 
 # Configure OP
@@ -112,7 +115,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "main.context_processors.template_env_vars"
+                "main.context_processors.template_env_vars",
             ],
         },
     },

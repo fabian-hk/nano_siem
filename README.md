@@ -45,6 +45,9 @@ from ``docker pull fabianhk/nano-siem``.
 DJANGO_SECRET_KEY=<strong secret key with at least 50 characters>
 DOMAIN_NAME=<domain name of the server>
 URL=<full url e.g. https://www.example.com>
+
+# If you are behind a reverse proxy, you have to set this variable
+USE_X_FORWARDED_HOST=True
 ```
 
 **Only of debugging:**
@@ -78,6 +81,16 @@ OIDC_CLIENT_SECRET=<CLIENT_SECRET>
 # If this variable is set, the application will use OpenID Connect
 # instead of the default Django authentication.
 OIDC_DISCOVERY_DOCUMENT=<IDP_URL>/.well-known/openid-configuration
+```
+
+In the Keycloak admin console you have to create a new confidential client
+(enable ``Client authentication``) with the following configuration:
+```bash
+# Valid redirect URIs
+https://<DOMAIN_NAME>/oidc/callback/
+
+# Valid post logout redirect URIs
+https://<DOMAIN_NAME>/oidc/authenticate/
 ```
 
 #### ALTERNATIVE: Default Django Authentication
