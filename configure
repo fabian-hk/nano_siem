@@ -4,4 +4,4 @@ apt update
 apt install -y software-properties-common
 add-apt-repository -y ppa:maxmind/ppa
 apt update
-apt install -y cron python3 python3-pip python3-dev default-libmysqlclient-dev build-essential geoipupdate iputils-ping
+apt install -y cron python3 python3-pip python3-dev default-libmysqlclient-dev build-essential geoipupdate iputils-ping nginx

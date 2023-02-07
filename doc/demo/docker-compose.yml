@@ -4,7 +4,7 @@ services:
   nano_siem:
     build:
       context: ../..
-      dockerfile: Dockerfile
+      dockerfile: docker/Dockerfile
     environment:
       - MYSQL_DB_NAME=NanoSiem
       - MYSQL_USER=NanoSiem
@@ -15,7 +15,7 @@ services:
     depends_on:
       - nano_siem_db
     ports:
-      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:8000:80"
 
   nano_siem_db:
     image: mariadb:10.10

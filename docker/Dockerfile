@@ -21,7 +21,11 @@ RUN mkdir /home/NanoSiem/.nano_siem/geolite2
 
 USER root
 
+RUN python3 manage.py collectstatic
+COPY docker/nginx.conf /etc/nginx/nginx.conf
+COPY docker/mime.types /etc/nginx/conf/mime.types
+
 RUN echo "@reboot NanoSiem /usr/bin/geoipupdate -v -d /home/NanoSiem/.nano_siem/geolite2 >> /home/NanoSiem/.nano_siem/crontab.log 2>&1" >> /etc/crontab
 RUN echo "58 5 * * 6,3 NanoSiem /usr/bin/geoipupdate -v -d /home/NanoSiem/.nano_siem/geolite2 >> /home/NanoSiem/.nano_siem/crontab.log 2>&1" >> /etc/crontab
 
-CMD env >> /etc/environment && cron && gunicorn --timeout 300 -b 0.0.0.0:8000 -u NanoSiem nano_siem.wsgi
+CMD env >> /etc/environment && cron && nginx && gunicorn --timeout 300 -b localhost:8000 -u NanoSiem nano_siem.wsgi
