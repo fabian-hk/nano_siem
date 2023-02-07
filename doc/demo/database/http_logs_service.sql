@@ -1,4 +1,4 @@
-create table web_service
+create table http_logs_service
 (
     id                bigint auto_increment
         primary key,
@@ -12,6 +12,6 @@ create table web_service
         unique (name) using hash
 );
 
-create index web_service_type_60491304
-    on web_service (type);
-insert into NanoSiem.web_service (id, name, type, log_position, log_path, modification_time, running) values (38, 'Traefik', 'traefik', 2000, '/var/log/access.log', '2022-12-12 00:47:13.287344', 0);
+create index http_logs_service_type_60491304
+    on http_logs_service (type);
+insert into NanoSiem.http_logs_service (id, name, type, log_position, log_path, modification_time, running) values (38, 'Traefik', 'traefik', 2000, '/var/log/access.log', '2022-12-12 00:47:13.287344', 0);

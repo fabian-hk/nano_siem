@@ -4,21 +4,28 @@ services:
   nano_siem:
     build:
       context: ../..
-      dockerfile: ../../Dockerfile
+      dockerfile: Dockerfile
     environment:
       - MYSQL_DB_NAME=NanoSiem
       - MYSQL_USER=NanoSiem
       - MYSQL_PASSWORD=AIeZ1C7HlC0D3NrbFtsCTGWcUfxNh4
       - MYSQL_HOST=nano_siem_db
-      - PLUGINS_LOG_LEVEL=DEBUG
+      - DEBUG=True
+      - DJANGO_SECRET_KEY=XO5UFuL2DhFiaFvflQr8pnq5NnPzhy5iJhvdd18z8LdP6780EBBBSemypyZR
+    depends_on:
+      - nano_siem_db
     ports:
-      - 127.0.0.1:8000:8000
+      - "127.0.0.1:8000:8000"
 
   nano_siem_db:
     image: mariadb:10.10
     volumes:
-      - $PWD/web_service.sql:/docker-entrypoint-initdb.d/web_service.sql
-      - $PWD/web_servicelog.sql:/docker-entrypoint-initdb.d/web_servicelog.sql
+      - $PWD/database/http_logs_service.sql:/docker-entrypoint-initdb.d/http_logs_service.sql
+      - $PWD/database/http_logs_servicelog.sql:/docker-entrypoint-initdb.d/http_logs_servicelog.sql
+      - $PWD/database/overwatch_networkservice.sql:/docker-entrypoint-initdb.d/overwatch_networkservice.sql
+      - $PWD/database/overwatch_networkservicelog.sql:/docker-entrypoint-initdb.d/overwatch_networkservicelog.sql
+      - $PWD/database/overwatch_diskservice.sql:/docker-entrypoint-initdb.d/overwatch_diskservice.sql
+      - $PWD/database/overwatch_diskservicelog.sql:/docker-entrypoint-initdb.d/overwatch_diskservicelog.sql
     environment:
       - MARIADB_USER=NanoSiem
       - MARIADB_DATABASE=NanoSiem

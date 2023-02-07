@@ -249,21 +249,27 @@ def clean_database():
             network_services.append((name, type))
         i += 1
 
-    # Build query with OR operation to keep all existing services
-    query = functools.reduce(
-        operator.or_,
-        (Q(name=name, type=type) for name, type in network_services),
-    )
+    if network_services:
+        # Build query with OR operation to keep all existing services
+        query = functools.reduce(
+            operator.or_,
+            (Q(name=name, type=type) for name, type in network_services),
+        )
 
-    # Delete all services except for the existing ones
-    NetworkService.objects.exclude(query).delete()
+        # Delete all services except for the existing ones
+        NetworkService.objects.exclude(query).delete()
+    else:
+        NetworkService.objects.all().delete()
 
-    query = functools.reduce(
-        operator.or_,
-        (Q(name=name, type=type) for name, type in disk_services),
-    )
+    if disk_services:
+        query = functools.reduce(
+            operator.or_,
+            (Q(name=name, type=type) for name, type in disk_services),
+        )
 
-    DiskService.objects.exclude(query).delete()
+        DiskService.objects.exclude(query).delete()
+    else:
+        DiskService.objects.all().delete()
 
 
 def is_configured() -> bool:
