@@ -1,20 +1,24 @@
 # Nano SIEM
 
-The Nano SIEM project is a minimalistic *security information 
-and event management* (SIEM) system designed for private home servers.
-This project helps to get an insight into the access log file
-of a Traefik reverse proxy. It does this by resolving IPs to
-coordinates and displaying them on different map views. In the
-screenshot below you can see an example from the detailed map.
-On this map, you can click on locations and see the requests that
-were made from there. The accesses are ranged by their likelihood
-to be a hacking attempt. Furthermore, there is a second view
-that specifically lists hacking attempts. A screenshot of this view
-can be seen below as well. These functionalities help to get
-a better understanding of the server's security risks.
+The Nano SIEM project is a minimalist *Security Information 
+and Event Management* (SIEM) system designed for private home servers.
 
-Furthermore, the software is easy to set up and configure.
-A prebuild ready-to-use Docker container can be pulled from [Docker Hub](https://hub.docker.com/r/fabianhk/nano-siem).
+Nano SIEM has two main functionalities:
+One is to monitor the uptime of services and send an email notification if 
+a service is unavailable.
+The second functionality is to provide insight into the access log file of a 
+Traefik reverse proxy. It does this by resolving IPs into
+coordinates and displaying them on different map views. In the
+screenshot below you can see an example of the detailed map.
+On this map, you can click on locations and see the requests that
+have been made from that location. The requests are ranked according to their likelihood
+of being a hacking attempt. There is also a second view
+which specifically lists hacking attempts. A screenshot of this view
+can also be seen below. These features help to get
+a better understanding of the security risks on the server.
+
+The software is easy to set up and configure.
+A pre-built, ready-to-use Docker container can be pulled from [Docker Hub](https://hub.docker.com/r/fabianhk/nano-siem).
 If you need to parse a different log file format feel free to write
 a new plugin and open a pull request.
 
@@ -23,6 +27,9 @@ a new plugin and open a pull request.
 
 **Event View**
 ![Screenshot of Event View](doc/screenshot_event_view.png)
+
+**Overwatch View**
+![Screenshot of Overwatch View](doc/screenshot_overwatch.png)
 
 # Demo
 
