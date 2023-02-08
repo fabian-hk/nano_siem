@@ -20,19 +20,18 @@ from django.contrib.auth.views import LoginView
 from main.view import index_view
 from plugins.http_logs.map_views import overview_map_view, detailed_map_view
 from plugins.http_logs.event_view import event_view
+from plugins.http_logs.table_view import table_view
 from plugins.overwatch.view import overwatch_view, latency_plot
 
 urlpatterns = [
     #    path('admin/', admin.site.urls),
     path("", index_view, name="index"),
-    path("map/overview/", overview_map_view, name="overview_map"),
-    path("map/detailed/", detailed_map_view, name="detailed_map"),
-    path("events/", event_view, name="events"),
+    path("logs/map/overview/", overview_map_view, name="overview_map"),
+    path("logs/map/detailed/", detailed_map_view, name="detailed_map"),
+    path("logs/events/", event_view, name="events"),
+    path("logs/table/", table_view, name="log_table"),
     path("overwatch/", overwatch_view, name="overwatch"),
     path("api/overwatch/latency-plot/<str:type>/<str:name>", latency_plot, name="latency_plot"),
     path("oidc/", include("mozilla_django_oidc.urls")),
     path("accounts/login", LoginView.as_view(), name="login"),
 ]
-
-# To serve static files directly with gunicorn
-urlpatterns += staticfiles_urlpatterns()

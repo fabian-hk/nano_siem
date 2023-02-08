@@ -9,26 +9,24 @@ from django.utils.timezone import make_aware
 
 from plugins.http_logs.models import Service, ServiceLog
 from plugins.http_logs.utils import str_to_int, ip_to_coordinates, IDSRules, CheckTor
+from plugins.http_logs.utils.get_service import get_service
 
 logger = logging.getLogger(__name__)
 
 
 def run():
-    # Load configuration
-    name = os.getenv("TRAEFIK_SERVICE_NAME", "Traefik")
-    log_path = os.getenv("TRAEFIK_SERVICE_LOG_PATH", "/var/log/traefik_access.log")
+    # Load service configuration
+    service = get_service()
 
     # Only run this job if the log file exists
-    if not is_configured(log_path):
+    if not is_configured(service):
         return
-
-    service = get_service(name, log_path)
 
     if service.running:
-        logger.info(f"Log parsing job {name} already running")
+        logger.info(f"Log parsing job {service.name} already running")
         return
 
-    logger.info(f"Start log parsing for {name} job")
+    logger.info(f"Start log parsing for {service.name} job")
 
     # Mark service as running
     service.running = True
@@ -100,7 +98,7 @@ def run():
                 except Exception as e:
                     print(e)
                     logger.error(
-                        f"Could not parse log line {i} for job {name}, line: {line}"
+                        f"Could not parse log line {i} for job {service.name}, line: {line}"
                     )
                     # Save failed log line to the ServiceLog table
                     line_split = line.split(" ")
@@ -139,7 +137,7 @@ def run():
                     )
                     transaction_bulk.clear()
 
-                    logger.debug(f"Parsed {name} log until line {i}")
+                    logger.debug(f"Parsed {service.name} log until line {i}")
                     service.log_position = i
                     service.save()
 
@@ -148,34 +146,17 @@ def run():
             ServiceLog.objects.bulk_create(transaction_bulk, ignore_conflicts=True)
             transaction_bulk.clear()
 
-            logger.info(f"Parsed log until line {i} for service {name}")
+            logger.info(f"Parsed log until line {i} for service {service.name}")
             service.log_position = i
             service.save()
 
     # ids_rules.print_ids_stats()
 
-    logger.info(f"End log parsing for {name} job")
+    logger.info(f"End log parsing for {service.name} job")
     service.running = False
     service.save()
 
 
-def get_service(name, log_path) -> Service:
-    if Service.objects.filter(name=name).exists():
-        # If service already exists update its attributes
-        service = Service.objects.get(name=name)
-        service.name = name
-        service.log_path = log_path
-        service.save()
-    else:
-        # If the service doesn't exist create it
-        service = Service(
-            name=name, type="traefik", log_position=-1, log_path=log_path, running=False
-        )
-        service.save()
-        logger.info(f"Created new traefik job {name}")
-    return service
-
-
-def is_configured(log_path: str) -> bool:
-    log_file = Path(log_path)
-    return log_file.exists() and os.stat(log_path).st_size > 0
+def is_configured(service: Service) -> bool:
+    log_file = Path(service.log_path)
+    return log_file.exists() and os.stat(service.log_path).st_size > 0

@@ -1,0 +1,34 @@
+<style>
+.td-format {
+    max-width: 200px;
+    overflow-wrap: break-word;
+}
+</style>
+{% load tz %}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            {% for i in header %}
+                <td style="background: white; position: sticky; top: 0;"><b>{{ i }}</b></td>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in content %}
+            <tr>
+                <td class="td-format">{{ i.timestamp | localtime }}</td>
+                <td class="td-format">{{ i.requested_service }}</td>
+                <td class="td-format">{{ i.ip }}</td>
+                <td class="td-format">{{ i.autonomous_system_organization }}</td>
+                <td class="td-format">{{ i.country_name }}</td>
+                <td class="td-format">{{ i.city_name }}</td>
+                <td class="td-format">{{ i.event }}</td>
+                <td class="td-format">{{ i.http_status }}</td>
+                <td class="td-format">{{ i.user_agent }}</td>
+                <td class="td-format">{{ i.request_method }}</td>
+                <td class="td-format">{{ i.is_tor }}</td>
+                <td class="td-format">{{ i.ids_score | floatformat:2 }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

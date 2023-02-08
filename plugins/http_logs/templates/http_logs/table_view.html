@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Traefik Logs</title>
+
+    {% include "header.html" %}
+</head>
+<style>
+    .center {
+        margin: auto;
+        width: 90%;
+    }
+    table {
+        overflow: auto;
+        display: block;
+        max-height: 600px;
+    }
+    h1 {
+        margin-top: 20px;
+    }
+</style>
+<body style="height: 100%">
+
+    {% include 'top_bar.html' %}
+
+    <div class="center">
+        <h1>Log Table</h1>
+
+        <p><b>Parsed log lines:</b> {{ num_log_lines }}</p>
+        <p><b>Cronjob running:</b> {{ cron_job_running }}</p>
+        <form action="{% url 'log_table' %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" id="reset" name="reset" value="1">
+            <input type="submit" class="btn btn-danger" value="Reset Cronjob">
+        </form>
+        <br>
+
+        {% include 'http_logs/table.html' with header=header content=content %}
+    </div>
+
+</body>
+</html>
