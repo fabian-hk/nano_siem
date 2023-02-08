@@ -57,9 +57,9 @@ URL=<full url e.g. https://www.example.com>
 USE_X_FORWARDED_HOST=True
 ```
 
-**Only of debugging:**
+**Only for debugging:**
 If you want to see the logs of the cronjob you have to mount 
-a log file to: ``/home/NanoSiem/crontab.log``.
+a log file to: ``/home/NanoSiem/.nano_siem/crontab.log``.
 
 ### Database
 
