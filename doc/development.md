@@ -11,3 +11,8 @@ On model changes run:
 - ``export $(cat .env)``
 - ``python manage.py makemigrations``
 - ``python manage.py migrate``
+
+# Publish Docker Image
+
+- ``docker build -t fabianhk/nano-siem -f docker/Dockerfile .``
+- ``docker push fabianhk/nano-siem``
