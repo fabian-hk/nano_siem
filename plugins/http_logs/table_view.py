@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
 from plugins.http_logs.models import Service, ServiceLog
-from plugins.http_logs.utils.get_service import get_service
+from plugins.http_logs.modules.traefik import get_traefik_service
 
 logger = logging.getLogger(__name__)
 
@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 @login_required
 def table_view(request):
     logger.info("Loading table view...")
-    service = get_service()
+    service = get_traefik_service()
 
     if request.method == "POST" and bool(request.POST.get("reset")):
         logger.warning(f"Log parsing job {service.name} was reset by user")

@@ -6,6 +6,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+IDS_SCORE_PARSER_FAILURE = 999
+
 
 class IDSRules:
     def __init__(self):

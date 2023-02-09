@@ -20,7 +20,8 @@ a better understanding of the security risks on the server.
 The software is easy to set up and configure.
 A pre-built, ready-to-use Docker container can be pulled from [Docker Hub](https://hub.docker.com/r/fabianhk/nano-siem).
 If you need to parse a different log file format feel free to write
-a new plugin and open a pull request.
+a new module and open a pull request. Look at the [development.md](doc/development.md)
+document to get started.
 
 **Detailed Map View**
 ![Screenshot Detailed Map](doc/screenshot_detailed_map.png)

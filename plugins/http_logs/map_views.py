@@ -24,7 +24,7 @@ def overview_map_view(request):
     t1 = time.time()
     start_date = make_aware(datetime.today() - timedelta(days=90))
     loc_data = [
-        [log_line["longitude"], log_line["latitude"]]
+        [log_line["latitude"], log_line["longitude"]]
         for log_line in (
             ServiceLog.objects.filter(longitude__isnull=False, latitude__isnull=False)
             .filter(timestamp__gte=start_date)
@@ -155,8 +155,8 @@ def detailed_map_view(request):
                 if prev_marker_point != MarkerPoint():
                     Marker(
                         location=(
-                            prev_marker_point.longitude,
                             prev_marker_point.latitude,
+                            prev_marker_point.longitude,
                         ),
                         popup=prev_marker_point.pop_up(),
                         tooltip=prev_marker_point.entries,
@@ -166,7 +166,7 @@ def detailed_map_view(request):
                 prev_marker_point = marker_point
     if prev_marker_point != MarkerPoint():
         Marker(
-            location=(prev_marker_point.longitude, prev_marker_point.latitude),
+            location=(prev_marker_point.latitude, prev_marker_point.longitude),
             popup=prev_marker_point.pop_up(),
             tooltip=prev_marker_point.entries,
         ).add_to(marker_cluster)

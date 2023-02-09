@@ -4,6 +4,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
 from plugins.http_logs.models import ServiceLog
+from plugins.http_logs.utils import IDS_SCORE_PARSER_FAILURE
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +30,7 @@ def event_view(request):
     ]
     malicious_events = (
         ServiceLog.objects.filter(longitude__isnull=False, latitude__isnull=False)
-        .exclude(ids_score__exact=999)
+        .exclude(ids_score__exact=IDS_SCORE_PARSER_FAILURE)
         .order_by("-ids_score", "-timestamp")
         .values(
             "timestamp",
@@ -60,7 +61,7 @@ def event_view(request):
         "IDS Score",
     ]
     log_line_fail_events = (
-        ServiceLog.objects.filter(ids_score__exact=999)
+        ServiceLog.objects.filter(ids_score__exact=IDS_SCORE_PARSER_FAILURE)
         .order_by("-timestamp")
         .values(
             "timestamp",

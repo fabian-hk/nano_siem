@@ -1,5 +1,5 @@
 from .geoip import ip_to_coordinates
-from .ids_rules import IDSRules
+from .ids_rules import IDSRules, IDS_SCORE_PARSER_FAILURE
 from .check_tor import CheckTor
 
 
