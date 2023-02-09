@@ -1,5 +1,5 @@
 <style>
-.td-format {
+td {
     max-width: 200px;
     overflow-wrap: break-word;
 }
@@ -16,18 +16,18 @@
     <tbody>
         {% for i in content %}
             <tr>
-                <td class="td-format">{{ i.timestamp | localtime }}</td>
-                <td class="td-format">{{ i.requested_service }}</td>
-                <td class="td-format">{{ i.ip }}</td>
-                <td class="td-format">{{ i.autonomous_system_organization }}</td>
-                <td class="td-format">{{ i.country_name }}</td>
-                <td class="td-format">{{ i.city_name }}</td>
-                <td class="td-format">{{ i.event }}</td>
-                <td class="td-format">{{ i.http_status }}</td>
-                <td class="td-format">{{ i.user_agent }}</td>
-                <td class="td-format">{{ i.request_method }}</td>
-                <td class="td-format">{{ i.is_tor }}</td>
-                <td class="td-format">{{ i.ids_score | floatformat:2 }}</td>
+                <td>{{ i.timestamp | localtime }}</td>
+                <td>{{ i.requested_service }}</td>
+                <td>{{ i.ip }}</td>
+                <td>{{ i.autonomous_system_organization }}</td>
+                <td>{{ i.country_name }}</td>
+                <td>{{ i.city_name }}</td>
+                <td>{{ i.event }}</td>
+                <td>{{ i.http_status }}</td>
+                <td>{{ i.user_agent }}</td>
+                <td>{{ i.request_method }}</td>
+                <td>{{ i.is_tor }}</td>
+                <td>{{ i.ids_score | floatformat:2 }}</td>
             </tr>
         {% endfor %}
     </tbody>

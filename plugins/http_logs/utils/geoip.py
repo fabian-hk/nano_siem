@@ -32,7 +32,7 @@ def ip_to_coordinates(ip: str, log_line: ServiceLog):
             log_line.latitude = float(private_ip_coordinates[1])
             log_line.city_name = private_ip_coordinates[2]
             log_line.country_name = private_ip_coordinates[3]
-            log_line.asn = private_ip_coordinates[4]
+            log_line.autonomous_system_organization = private_ip_coordinates[4]
             return
 
         with geoip2.database.Reader(geolite2_city_db_path) as reader:
@@ -45,6 +45,6 @@ def ip_to_coordinates(ip: str, log_line: ServiceLog):
         log_line.latitude = city_response.location.latitude
         log_line.city_name = city_response.city.name
         log_line.country_name = city_response.country.name
-        log_line.asn = asn_response.autonomous_system_organization
+        log_line.autonomous_system_organization = asn_response.autonomous_system_organization
     except (ValueError, AddressNotFoundError) as e:
         logger.error(f"Error getting coordinates: {e}")

@@ -90,7 +90,7 @@ def event_view(request):
     ]
     locationless_events = (
         ServiceLog.objects.filter(longitude__isnull=True, latitude__isnull=True)
-        .order_by("-timestamp")
+        .order_by("-ids_score", "-timestamp")
         .values(
             "timestamp",
             "requested_service",
