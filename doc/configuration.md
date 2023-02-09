@@ -53,6 +53,10 @@ TRAEFIK_SERVICE_LOG_PATH=/var/log/traefik_access.log
 ```bash
 # Set default values for private IP addresses
 PRIVATE_IP_LOCATION_INFO=65.01236,25.46816,Oulu,Finland,DNA 
+
+# Set path to GeoLite2 database. Not needed if 
+# docker image with 'GeoIP.conf' is used.
+GEO_LITE2_DB_PATH=/usr/share/GeoLite2
 ```
 
 ## Overwatch Module

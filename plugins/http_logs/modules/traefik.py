@@ -14,7 +14,7 @@ def parse_traefik_log_line(line: str, line_nr: int, service: Service) -> ParsedL
     """
     Method to parse a log line from a Traefik access log file.
 
-    **If you want to parse a log line from a different service,
+    **If you want to parse log lines from a different service,
     you have to implement a method like this one.**
 
     :param line:        Log line in string format to be parsed

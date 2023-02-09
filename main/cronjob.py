@@ -2,11 +2,11 @@ import logging
 import os
 from threading import Thread
 
-import django
+# import django
 
 # Prepare Django framework to make database transaction
-os.environ["DJANGO_SETTINGS_MODULE"] = "nano_siem.settings"
-django.setup()
+# os.environ["DJANGO_SETTINGS_MODULE"] = "nano_siem.settings"
+# django.setup()
 
 from plugins.overwatch import cronjob as overwatch_cronjob
 from plugins.http_logs import cronjob as http_log_cronjob
@@ -15,7 +15,7 @@ from main.notifications import run as notifications
 logger = logging.getLogger(__name__)
 
 
-logger.setLevel(logging.DEBUG)
+# logger.setLevel(logging.DEBUG)
 
 
 def cronjob():
