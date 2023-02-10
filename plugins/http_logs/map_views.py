@@ -50,6 +50,7 @@ class MarkerPoint:
         self.latitude = latitude
         self.entries = 1
 
+        self.time = []
         self.ips = []
         self.http_statuses = []
         self.requested_services = []
@@ -60,6 +61,7 @@ class MarkerPoint:
         self.is_tor = []
 
     def fill_data(self, log_line: ServiceLog):
+        self.time.append(log_line.timestamp)
         self.ips.append(log_line.ip)
         self.http_statuses.append(log_line.http_status)
         self.requested_services.append(log_line.requested_service)
@@ -87,6 +89,7 @@ class MarkerPoint:
         limit_show = 20
         variables = {
             "table_list": zip(
+                self.time[:limit_show],
                 self.ips[:limit_show],
                 self.http_statuses[:limit_show],
                 self.requested_services[:limit_show],
@@ -144,7 +147,7 @@ def detailed_map_view(request):
     for i, log_line in enumerate(
         ServiceLog.objects.filter(
             timestamp__gte=start_date, timestamp__lte=end_date
-        ).order_by("longitude", "latitude", "-ids_score")
+        ).order_by("longitude", "latitude", "-ids_score", "-timestamp")
     ):
         if log_line.longitude and log_line.latitude:
             marker_point = MarkerPoint(log_line.longitude, log_line.latitude)
