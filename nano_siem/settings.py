@@ -224,14 +224,9 @@ LOGGING = {
             "level": os.getenv("PLUGINS_LOG_LEVEL", "INFO"),
             "propagate": False,
         },
-        "cron": {
-            "handlers": ["console"],
-            "level": os.getenv("CRON_LOG_LEVEL", "INFO"),
-            "propagate": False,
-        },
         "main": {
             "handlers": ["console"],
-            "level": os.getenv("WEB_LOG_LEVEL", "INFO"),
+            "level": os.getenv("MAIN_LOG_LEVEL", "INFO"),
             "propagate": False,
         },
         "mozilla_django_oidc": {

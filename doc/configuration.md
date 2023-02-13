@@ -93,3 +93,22 @@ OW_DISK_ROOTFS_PREFIX=/mnt/rootfs
 # you have to set this to 'False'.
 OW_REMOVE_OLD_SERVICES=True
 ```
+
+# Debugging
+
+```bash
+# Enable django debugging mode
+DEBUG=False
+
+# Show debug logs from the web application and the main cronjob script
+MAIN_LOG_LEVEL=DEBUG
+
+# Show debug logs from the http_logs and overwatch module
+PLUGINS_LOG_LEVEL=DEBUG
+
+# Show debug logs from the OIDC authentication
+MOZILLA_OIDC_LOG_LEVEL=DEBUG
+
+# Show debug logs from the django framework
+DJANGO_LOG_LEVEL=DEBUG
+```
