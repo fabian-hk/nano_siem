@@ -1,6 +1,6 @@
-from typing import Tuple
 import os
 import logging
+import subprocess
 
 import geoip2.database
 import ipaddress
@@ -16,6 +16,16 @@ geoip2_default_path = "/home/NanoSiem/.nano_siem/geolite2"
 def ip_to_coordinates(ip: str, log_line: ServiceLog):
     geolite2_city_db_path = f"{os.getenv('GEO_LITE2_DB_PATH', geoip2_default_path)}/GeoLite2-City.mmdb"
     geolite2_asn_db_path = f"{os.getenv('GEO_LITE2_DB_PATH', geoip2_default_path)}/GeoLite2-ASN.mmdb"
+
+    # Try to download the GeoLite2 database if it does not exist
+    if not os.path.exists(geolite2_city_db_path) or not os.path.exists(geolite2_asn_db_path):
+        logger.warning("GeoLite2 database not found. Trying to download it from the internet...")
+        result = subprocess.Popen(["/usr/bin/geoipupdate", "-v", "-d", "/home/NanoSiem/.nano_siem/geolite2"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        result.wait()
+        if result.returncode != 0:
+            logger.error(f"Error updating GeoLite2 database: {result.stderr.readlines()}")
+            raise Exception("Error updating GeoLite2 database")
+        logger.info("Successfully downloaded GeoLite2 database from the internet.")
 
     try:
         input_ip = ipaddress.ip_address(ip)

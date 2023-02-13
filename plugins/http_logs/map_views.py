@@ -136,6 +136,9 @@ def detailed_map_view(request):
         end_date_str = end_date.strftime(time_format_str)
         end_date = make_aware(end_date)
 
+    # Add one day to include the end day
+    end_date = end_date + timedelta(days=1)
+
     logger.info(f"Loading detailed map from {start_date_str} to {end_date_str}")
 
     start_coords = (48.78232, 9.17702)

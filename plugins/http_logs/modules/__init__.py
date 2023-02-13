@@ -69,12 +69,6 @@ def parse_log_lines(service: Service, parse_log_line):
                         content_size=parsed_log_line.content_size,
                         ids_score=parsed_log_line.ids_score,
                     )
-                    ip_to_coordinates(parsed_log_line.ip, log_line)
-                    log_line.is_tor = check_tor.is_tor_exit_node(parsed_log_line.ip)
-                    if log_line.ids_score == -1.0:
-                        log_line.ids_score = ids_rules.ids_score(
-                            parsed_log_line.event, parsed_log_line.user_agent
-                        )
                 except Exception as e:
                     print(e)
                     logger.error(
@@ -85,6 +79,18 @@ def parse_log_lines(service: Service, parse_log_line):
                         service=service,
                         message=line,
                         ids_score=IDS_SCORE_PARSER_FAILURE,
+                    )
+
+                # Don't try to get additional data in the try-except block
+                # to prevent failing to enrich the log line because of an
+                # error in these functions.
+                if log_line.ip:
+                    ip_to_coordinates(parsed_log_line.ip, log_line)
+                    log_line.is_tor = check_tor.is_tor_exit_node(parsed_log_line.ip)
+
+                if log_line.ids_score == -1.0 and parsed_log_line.event and parsed_log_line.user_agent:
+                    log_line.ids_score = ids_rules.ids_score(
+                        parsed_log_line.event, parsed_log_line.user_agent
                     )
 
                 transaction_bulk.append(log_line)

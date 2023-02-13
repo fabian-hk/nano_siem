@@ -92,6 +92,14 @@ OW_DISK_ROOTFS_PREFIX=/mnt/rootfs
 # If you want to keep the services in the database
 # you have to set this to 'False'.
 OW_REMOVE_OLD_SERVICES=True
+
+# Number of days to plot in the network latency plots.
+# Default is 1 days. Can be a float.
+OW_LATENCY_PLOT_DAYS=1
+
+# Number of days to plot in the disk usage plots.
+# Default is 30 days. Can be a float.
+OW_DISK_PLOT_DAYS=30
 ```
 
 # Debugging

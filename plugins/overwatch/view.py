@@ -1,4 +1,6 @@
 import logging
+import os
+import io
 from datetime import datetime, timedelta
 
 from django.forms import model_to_dict
@@ -7,9 +9,13 @@ from django.utils.timezone import make_aware
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 import matplotlib.pyplot as plt
-import io
 
-from plugins.overwatch.models import NetworkService, NetworkServiceLog, DiskService, DiskServiceLog
+from plugins.overwatch.models import (
+    NetworkService,
+    NetworkServiceLog,
+    DiskService,
+    DiskServiceLog,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +29,7 @@ def overwatch_view(request):
 def plot_network_service(name: str, type: str):
     service = NetworkService.objects.get(name=name, type=type)
 
-    start_date = make_aware(datetime.today() - timedelta(days=7))
+    start_date = make_aware(datetime.today() - timedelta(days=float(os.getenv("OW_LATENCY_PLOT_DAYS", "1"))))
     logs = (
         NetworkServiceLog.objects.filter(service=service, timestamp__gte=start_date)
         .order_by("timestamp")
@@ -44,7 +50,7 @@ def plot_network_service(name: str, type: str):
 def plot_disk_service(name: str, type: str):
     service = DiskService.objects.get(name=name, type=type)
 
-    start_date = make_aware(datetime.today() - timedelta(days=7))
+    start_date = make_aware(datetime.today() - timedelta(days=float(os.getenv("OW_DISK_PLOT_DAYS", "30"))))
     logs = (
         DiskServiceLog.objects.filter(service=service, timestamp__gte=start_date)
         .order_by("timestamp")
@@ -55,12 +61,11 @@ def plot_disk_service(name: str, type: str):
     availability = []
     for log in logs:
         timestamps.append(log.timestamp)
-        availability.append(int(log.available))
+        availability.append(int(log.used_space) / 10**9)
 
     plt.plot(timestamps, availability)
-    plt.title(f"{service.name} Availability Plot")
-    plt.ylabel("Available")
-    plt.ylim([0, 1.5])
+    plt.title(f"{service.name} Used Space Plot")
+    plt.ylabel("Used Space (GB)")
 
 
 @login_required
