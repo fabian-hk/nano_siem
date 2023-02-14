@@ -66,41 +66,44 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-# Add 'mozilla_django_oidc' authentication backend
-AUTHENTICATION_BACKENDS = (
-    "main.oidc.CustomAuthenticationBackend"
-    if os.getenv("OIDC_DISCOVERY_DOCUMENT", None)
-    else "django.contrib.auth.backends.ModelBackend",
-)
-
 # Configure OP
 OIDC_CONFIGURATION = {}
 
-if os.getenv("OIDC_DISCOVERY_DOCUMENT", None):
+USE_OIDC = False
+try:
     response = requests.get(os.getenv("OIDC_DISCOVERY_DOCUMENT"))
     if response.status_code == 200:
         OIDC_CONFIGURATION = json.loads(response.text)
+        OIDC_RP_CLIENT_ID = os.getenv("OIDC_CLIENT_ID", "")
+        OIDC_RP_CLIENT_SECRET = os.getenv("OIDC_CLIENT_SECRET", "")
+        OIDC_OP_AUTHORIZATION_ENDPOINT = OIDC_CONFIGURATION["authorization_endpoint"]
+        OIDC_OP_TOKEN_ENDPOINT = OIDC_CONFIGURATION["token_endpoint"]
+        OIDC_OP_USER_ENDPOINT = OIDC_CONFIGURATION["userinfo_endpoint"]
+        OIDC_OP_JWKS_ENDPOINT = OIDC_CONFIGURATION["jwks_uri"]
+        USE_OIDC = True
     else:
         print(
             f"Failed to load OIDC configuration from {os.getenv('OIDC_DISCOVERY_DOCUMENT')}. Status code: {response.status_code}"
         )
-
-    OIDC_RP_CLIENT_ID = os.getenv("OIDC_CLIENT_ID", "")
-    OIDC_RP_CLIENT_SECRET = os.getenv("OIDC_CLIENT_SECRET", "")
-    OIDC_OP_AUTHORIZATION_ENDPOINT = OIDC_CONFIGURATION["authorization_endpoint"]
-    OIDC_OP_TOKEN_ENDPOINT = OIDC_CONFIGURATION["token_endpoint"]
-    OIDC_OP_USER_ENDPOINT = OIDC_CONFIGURATION["userinfo_endpoint"]
-    OIDC_OP_JWKS_ENDPOINT = OIDC_CONFIGURATION["jwks_uri"]
+except Exception as e:
+    pass
 
 OIDC_RP_SIGN_ALGO = "RS256"
 LOGIN_URL = (
     "oidc_authentication_init"
-    if os.getenv("OIDC_DISCOVERY_DOCUMENT", None)
+    if USE_OIDC
     else "login"
 )
 LOGIN_REDIRECT_URL = "/"
 OIDC_STORE_ID_TOKEN = True
 OIDC_OP_LOGOUT_URL_METHOD = "main.oidc.user_logout"
+
+# Add 'mozilla_django_oidc' authentication backend
+AUTHENTICATION_BACKENDS = (
+    "main.oidc.CustomAuthenticationBackend"
+    if USE_OIDC
+    else "django.contrib.auth.backends.ModelBackend",
+)
 
 ROOT_URLCONF = "nano_siem.urls"
 
