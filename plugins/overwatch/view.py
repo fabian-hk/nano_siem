@@ -1,3 +1,4 @@
+from typing import List
 import logging
 import os
 import io
@@ -8,6 +9,7 @@ from django.shortcuts import render
 from django.utils.timezone import make_aware
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
+import numpy as np
 import matplotlib.pyplot as plt
 
 from plugins.overwatch.models import (
@@ -26,10 +28,19 @@ def overwatch_view(request):
     return render(request, "overwatch/overwatch_view.html", context)
 
 
+def smooth_plots(timestamps: List[datetime], values: List[float], kernel_size: int):
+    if len(values) > 2 * kernel_size:
+        values = np.convolve(values, np.ones(kernel_size) / kernel_size, mode="valid")
+        timestamps = timestamps[kernel_size // 2 : -kernel_size // 2 + 1]
+    return timestamps, values
+
+
 def plot_network_service(name: str, type: str):
     service = NetworkService.objects.get(name=name, type=type)
 
-    start_date = make_aware(datetime.today() - timedelta(days=float(os.getenv("OW_LATENCY_PLOT_DAYS", "1"))))
+    start_date = make_aware(
+        datetime.today() - timedelta(days=float(os.getenv("OW_LATENCY_PLOT_DAYS", "1")))
+    )
     logs = (
         NetworkServiceLog.objects.filter(service=service, timestamp__gte=start_date)
         .order_by("timestamp")
@@ -42,6 +53,9 @@ def plot_network_service(name: str, type: str):
         timestamps.append(log.timestamp)
         latencies.append(log.latency)
 
+    kernel_size = int(os.getenv("OW_LATENCY_PLOT_SMOOTHING", "60"))
+    timestamps, latencies = smooth_plots(timestamps, latencies, kernel_size)
+
     plt.plot(timestamps, latencies)
     plt.title(f"{service.name} Latency Plot")
     plt.ylabel("Latency (ms)")
@@ -50,7 +64,9 @@ def plot_network_service(name: str, type: str):
 def plot_disk_service(name: str, type: str):
     service = DiskService.objects.get(name=name, type=type)
 
-    start_date = make_aware(datetime.today() - timedelta(days=float(os.getenv("OW_DISK_PLOT_DAYS", "30"))))
+    start_date = make_aware(
+        datetime.today() - timedelta(days=float(os.getenv("OW_DISK_PLOT_DAYS", "30")))
+    )
     logs = (
         DiskServiceLog.objects.filter(service=service, timestamp__gte=start_date)
         .order_by("timestamp")
@@ -61,7 +77,10 @@ def plot_disk_service(name: str, type: str):
     availability = []
     for log in logs:
         timestamps.append(log.timestamp)
-        availability.append(int(log.used_space) / 10**9)
+        availability.append(int(log.used_space) / 10 ** 9)
+
+    kernel_size = int(os.getenv("OW_DISK_PLOT_SMOOTHING", "60"))
+    timestamps, availability = smooth_plots(timestamps, availability, kernel_size)
 
     plt.plot(timestamps, availability)
     plt.title(f"{service.name} Used Space Plot")
@@ -69,7 +88,13 @@ def plot_disk_service(name: str, type: str):
 
 
 @login_required
-def latency_plot(request, name: str, type: str):
+def latency_plot(request):
+    type = request.GET.get("type", default=None)
+    name = request.GET.get("name", default=None)
+
+    if type is None or name is None:
+        return HttpResponse(status=400)
+
     plt.figure(figsize=(10, 5))
     plt.rcParams["font.size"] = 12
     if type == "disk":
@@ -98,7 +123,7 @@ def get_data_as_table():
         number = NetworkServiceLog.objects.filter(service=service).count()
         up_time = up / number
         model_as_dict = model_to_dict(service)
-        model_as_dict["up_time"] = f"{int(up_time * 100)}%"
+        model_as_dict["up_time"] = f"{up_time * 100:.2f}%"
         model_as_dict["modification_time"] = service.modification_time
         model_as_dict["details"] = (
             f"{service.host} // {service.port}" if service.port != 0 else service.host
@@ -116,7 +141,7 @@ def get_data_as_table():
         number = DiskServiceLog.objects.filter(service=service).count()
         up_time = up / number
         model_as_dict = model_to_dict(service)
-        model_as_dict["up_time"] = f"{int(up_time * 100)}%"
+        model_as_dict["up_time"] = f"{up_time * 100:.2f}%"
         model_as_dict["modification_time"] = service.modification_time
         try:
             last_log = (

@@ -97,9 +97,19 @@ OW_REMOVE_OLD_SERVICES=True
 # Default is 1 days. Can be a float.
 OW_LATENCY_PLOT_DAYS=1
 
+# Kernel size for smoothing the latency plot.
+# Higher values will result in a smoother plot.
+# Default is 60.
+OW_LATENCY_PLOT_SMOOTHING=60
+
 # Number of days to plot in the disk usage plots.
 # Default is 30 days. Can be a float.
 OW_DISK_PLOT_DAYS=30
+
+# Kernel size for smoothing the disk usage plot.
+# Higher values will result in a smoother plot.
+# Default is 60.
+OW_DISK_PLOT_SMOOTHING=60
 ```
 
 # Debugging

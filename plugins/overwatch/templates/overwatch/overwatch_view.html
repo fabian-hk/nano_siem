@@ -188,7 +188,7 @@
     jQuery(document).ready(function($) {
         $(".clickable-row").click(function() {
             $("#modal-title").text($(this).data("name") + " Availability");
-            $("#latency-plot").attr("src", "/api/overwatch/latency-plot/" + $(this).data("type") + "/" + $(this).data("name"));
+            $("#latency-plot").attr("src", "/api/overwatch/latency-plot/?type=" + encodeURIComponent($(this).data("type")) + "&name=" + encodeURIComponent($(this).data("name")));
             $("#myModal").modal("show");
         });
     });
