@@ -14,5 +14,9 @@ On model changes run:
 
 # Publish Docker Image
 
-- ``docker build -t fabianhk/nano-siem -f docker/Dockerfile .``
-- ``docker push fabianhk/nano-siem``
+```bash
+docker buildx build --push --platform linux/amd64 -t fabianhk/nano-siem:amd64-latest -f docker/Dockerfile .
+docker buildx build --push --platform linux/arm64 -t fabianhk/nano-siem:arm64-latest -f docker/Dockerfile .
+docker manifest create fabianhk/nano-siem fabianhk/nano-siem:amd64-latest fabianhk/nano-siem:arm64-latest
+docker manifest push fabianhk/nano-siem
+```

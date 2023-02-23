@@ -1,21 +1,5 @@
 {% if ow_services_header %}
     {% load tz %}
-    <style>
-        .red-dot {
-            height: 25px;
-            width: 25px;
-            background-color: red;
-            border-radius: 50%;
-            display: inline-block;
-        }
-        .green-dot {
-            height: 25px;
-            width: 25px;
-            background-color: green;
-            border-radius: 50%;
-            display: inline-block;
-        }
-    </style>
     <h2>Overwatch</h2>
     <p>Some services are not available:</p>
     {% if ow_http_services %}
@@ -34,9 +18,9 @@
                     <td>{{ i.name }}</td>
                     <td>
                         {%  if i.available %}
-                            <span class="green-dot"></span>
+                            <span style="height: 25px; width: 25px; background-color: green; border-radius: 50%; display: inline-block;"></span>
                         {% else %}
-                            <span class="red-dot"></span>
+                            <span style="height: 25px; width: 25px; background-color: red; border-radius: 50%; display: inline-block;"></span>
                         {% endif %}
                     </td>
                     <td>{{ i.up_time }}</td>
@@ -62,9 +46,9 @@
                     <td>{{ i.name }}</td>
                     <td>
                         {%  if i.available %}
-                            <span class="green-dot"></span>
+                            <span style="height: 25px; width: 25px; background-color: green; border-radius: 50%; display: inline-block;"></span>
                         {% else %}
-                            <span class="red-dot"></span>
+                            <span style="height: 25px; width: 25px; background-color: red; border-radius: 50%; display: inline-block;"></span>
                         {% endif %}
                     </td>
                     <td>{{ i.up_time }}</td>
@@ -90,9 +74,9 @@
                     <td>{{ i.name }}</td>
                     <td>
                         {%  if i.available %}
-                            <span class="green-dot"></span>
+                            <span style="height: 25px; width: 25px; background-color: green; border-radius: 50%; display: inline-block;"></span>
                         {% else %}
-                            <span class="red-dot"></span>
+                            <span style="height: 25px; width: 25px; background-color: red; border-radius: 50%; display: inline-block;"></span>
                         {% endif %}
                     </td>
                     <td>{{ i.up_time }}</td>
@@ -118,9 +102,9 @@
                     <td>{{ i.name }}</td>
                     <td>
                         {%  if i.available %}
-                            <span class="green-dot"></span>
+                            <span style="height: 25px; width: 25px; background-color: green; border-radius: 50%; display: inline-block;"></span>
                         {% else %}
-                            <span class="red-dot"></span>
+                            <span style="height: 25px; width: 25px; background-color: red; border-radius: 50%; display: inline-block;"></span>
                         {% endif %}
                     </td>
                     <td>{{ i.up_time }}</td>

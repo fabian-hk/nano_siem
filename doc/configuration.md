@@ -83,6 +83,9 @@ OVERWATCH_{i}=Name,disk,<device>,<mount point>,<uuid>
 # you have to set this to 'False'.
 OW_HTTP_VERIFY_SSL=True
 
+# Configure the timeout for network service availability checks.
+OW_NETWORK_TIMEOUT=10
+
 # If your root filesystem is mounted somewhere else than the default
 # mount option you have to set the path here.
 OW_DISK_ROOTFS_PREFIX=/mnt/rootfs

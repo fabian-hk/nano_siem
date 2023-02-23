@@ -74,7 +74,10 @@ def tcp_server_availability(config):
     try:
         time.sleep(2)
         start = time.time_ns()
-        sock = socket.create_connection((service.host, service.port), timeout=5)
+        sock = socket.create_connection(
+            (service.host, service.port),
+            timeout=int(os.getenv("OW_NETWORK_TIMEOUT", "10")),
+        )
         time_ms = (time.time_ns() - start) / 1000000
         logger.debug(f"Time to connect to TCP server: {time_ms}ms")
         sock.shutdown(socket.SHUT_RDWR)
@@ -96,7 +99,7 @@ def http_server_availability(config):
     try:
         response = requests.get(
             service.host,
-            timeout=5,
+            timeout=int(os.getenv("OW_NETWORK_TIMEOUT", "10")),
             verify=(os.getenv("OW_HTTP_VERIFY_SSL", "True") == "True"),
             allow_redirects=False,
         )
