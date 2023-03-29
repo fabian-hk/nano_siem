@@ -69,13 +69,18 @@ MIDDLEWARE = [
 # Configure OP
 OIDC_CONFIGURATION = {}
 
+OIDC_RP_CLIENT_ID = os.getenv("OIDC_CLIENT_ID", "")
+OIDC_RP_CLIENT_SECRET = os.getenv("OIDC_CLIENT_SECRET", "")
+OIDC_OP_AUTHORIZATION_ENDPOINT = None
+OIDC_OP_TOKEN_ENDPOINT = None
+OIDC_OP_USER_ENDPOINT = None
+OIDC_OP_JWKS_ENDPOINT = None
 USE_OIDC = False
+
 try:
     response = requests.get(os.getenv("OIDC_DISCOVERY_DOCUMENT"))
     if response.status_code == 200:
         OIDC_CONFIGURATION = json.loads(response.text)
-        OIDC_RP_CLIENT_ID = os.getenv("OIDC_CLIENT_ID", "")
-        OIDC_RP_CLIENT_SECRET = os.getenv("OIDC_CLIENT_SECRET", "")
         OIDC_OP_AUTHORIZATION_ENDPOINT = OIDC_CONFIGURATION["authorization_endpoint"]
         OIDC_OP_TOKEN_ENDPOINT = OIDC_CONFIGURATION["token_endpoint"]
         OIDC_OP_USER_ENDPOINT = OIDC_CONFIGURATION["userinfo_endpoint"]
@@ -86,21 +91,19 @@ try:
             f"Failed to load OIDC configuration from {os.getenv('OIDC_DISCOVERY_DOCUMENT')}. Status code: {response.status_code}"
         )
 except Exception as e:
-    pass
+    print(
+        f"Failed to load OIDC configuration from {os.getenv('OIDC_DISCOVERY_DOCUMENT')}"
+    )
 
 OIDC_RP_SIGN_ALGO = "RS256"
-LOGIN_URL = (
-    "oidc_authentication_init"
-    if USE_OIDC
-    else "login"
-)
+LOGIN_URL = "login_proxy"
 LOGIN_REDIRECT_URL = "/"
 OIDC_STORE_ID_TOKEN = True
 OIDC_OP_LOGOUT_URL_METHOD = "main.oidc.user_logout"
 
 # Add 'mozilla_django_oidc' authentication backend
 AUTHENTICATION_BACKENDS = (
-    "main.oidc.CustomAuthenticationBackend"
+    "main.user_authentication.CustomAuthenticationBackend"
     if USE_OIDC
     else "django.contrib.auth.backends.ModelBackend",
 )
