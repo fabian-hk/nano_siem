@@ -7,7 +7,6 @@ from django.urls import reverse
 from django.shortcuts import redirect
 import urllib.parse
 import requests
-import json
 
 from nano_siem import settings
 
@@ -15,13 +14,11 @@ logger = logging.getLogger(__name__)
 
 
 def user_logout(request):
-    if settings.USE_OIDC:
+    if _use_oidc():
         query = {
-            "post_logout_redirect_uri": request.build_absolute_uri(
-                reverse("index")
-            ),
+            "post_logout_redirect_uri": request.build_absolute_uri(reverse("index")),
             "id_token_hint": request.session.get("oidc_id_token"),
-            "client_id": os.getenv("OIDC_CLIENT_ID"),
+            "client_id": os.getenv("OIDC_CLIENT_ID", ""),
         }
         query_string = urlencode(query)
         return f"{settings.OIDC_CONFIGURATION['end_session_endpoint']}?{query_string}"
@@ -31,34 +28,7 @@ def user_logout(request):
 
 
 def login_proxy(request):
-    try:
-        response = requests.get(os.getenv("OIDC_DISCOVERY_DOCUMENT"))
-        if response.status_code == 200:
-            settings.OIDC_CONFIGURATION = json.loads(response.text)
-            settings.OIDC_OP_AUTHORIZATION_ENDPOINT = settings.OIDC_CONFIGURATION[
-                "authorization_endpoint"
-            ]
-            settings.OIDC_OP_TOKEN_ENDPOINT = settings.OIDC_CONFIGURATION[
-                "token_endpoint"
-            ]
-            settings.OIDC_OP_USER_ENDPOINT = settings.OIDC_CONFIGURATION[
-                "userinfo_endpoint"
-            ]
-            settings.OIDC_OP_JWKS_ENDPOINT = settings.OIDC_CONFIGURATION["jwks_uri"]
-            settings.USE_OIDC = True
-            logger.info(f"Loaded OIDC configuration from {os.getenv('OIDC_DISCOVERY_DOCUMENT')}")
-        else:
-            settings.USE_OIDC = False
-            logger.warning(
-                f"Failed to load OIDC configuration from {os.getenv('OIDC_DISCOVERY_DOCUMENT')}. Status code: {response.status_code}"
-            )
-    except Exception as e:
-        settings.USE_OIDC = False
-        logger.warning(
-            f"Failed to load OIDC configuration from {os.getenv('OIDC_DISCOVERY_DOCUMENT')}"
-        )
-
-    if settings.USE_OIDC:
+    if _use_oidc():
         return redirect(
             reverse("oidc_authentication_init")
             + "?"
@@ -66,6 +36,19 @@ def login_proxy(request):
         )
     else:
         return redirect(reverse("login") + "?" + urllib.parse.urlencode(request.GET))
+
+
+def _use_oidc() -> bool:
+    if not os.getenv("OIDC_DISCOVERY_DOCUMENT"):
+        return False
+    try:
+        response = requests.get(os.getenv("OIDC_DISCOVERY_DOCUMENT"))
+        if response.status_code == 200:
+            return True
+        else:
+            return False
+    except Exception as e:
+        return False
 
 
 class CustomAuthenticationBackend(OIDCAuthenticationBackend):
