@@ -86,9 +86,13 @@ The OpenID Connect login is tested with the Keycloak authorization server.
 OIDC_CLIENT_ID=<CLIENT_ID>
 OIDC_CLIENT_SECRET=<CLIENT_SECRET>
 
-# If this variable is set, the application will use OpenID Connect
-# instead of the default Django authentication.
-OIDC_DISCOVERY_DOCUMENT=<IDP_URL>/.well-known/openid-configuration
+OIDC_AUTHORIZATION_ENDPOINT=
+OIDC_TOKEN_ENDPOINT=
+OIDC_USER_ENDPOINT=
+# If OIDC_JWKS_ENDPOINT variable is set and the document can be retrieved with
+# a 200 status code, the OIDC login is enabled.
+OIDC_JWKS_ENDPOINT=
+OIDC_END_SESSION_ENDPOINT=
 ```
 
 In the Keycloak admin console you have to create a new confidential client
@@ -101,7 +105,7 @@ https://<DOMAIN_NAME>/oidc/callback/
 https://<DOMAIN_NAME>/oidc/authenticate/
 ```
 
-#### ALTERNATIVE: Default Django Authentication
+#### ALTERNATIVE or FALLBACK: Default Django Authentication
 
 If you don't use OpenID Connect for authentication you have to
 create a superuser account. You can do this by running the

@@ -12,8 +12,6 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import os
-import requests
-import json
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -66,45 +64,13 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-# Configure OIDC
-if os.getenv("OIDC_DISCOVERY_DOCUMENT"):
-    OIDC_RP_CLIENT_ID = os.getenv("OIDC_CLIENT_ID", "")
-    OIDC_RP_CLIENT_SECRET = os.getenv("OIDC_CLIENT_SECRET", "")
-
-    # Execute everything inside a try-except block to prevent unforeseen errors
-    try:
-        app_folder = Path.home() / ".nano_siem"
-        app_folder.mkdir(parents=True, exist_ok=True)
-        oidc_config_file = app_folder / "oidc_config.json"
-
-        if oidc_config_file.exists():
-            # Load OIDC configuration from file
-            print("Load OIDC configuration from file")
-            OIDC_CONFIGURATION = json.loads(oidc_config_file.read_text())
-            OIDC_OP_AUTHORIZATION_ENDPOINT = OIDC_CONFIGURATION[
-                "authorization_endpoint"
-            ]
-            OIDC_OP_TOKEN_ENDPOINT = OIDC_CONFIGURATION["token_endpoint"]
-            OIDC_OP_USER_ENDPOINT = OIDC_CONFIGURATION["userinfo_endpoint"]
-            OIDC_OP_JWKS_ENDPOINT = OIDC_CONFIGURATION["jwks_uri"]
-
-        response = requests.get(os.getenv("OIDC_DISCOVERY_DOCUMENT"))
-        if response.status_code == 200:
-            OIDC_CONFIGURATION = json.loads(response.text)
-
-            OIDC_OP_AUTHORIZATION_ENDPOINT = OIDC_CONFIGURATION[
-                "authorization_endpoint"
-            ]
-            OIDC_OP_TOKEN_ENDPOINT = OIDC_CONFIGURATION["token_endpoint"]
-            OIDC_OP_USER_ENDPOINT = OIDC_CONFIGURATION["userinfo_endpoint"]
-            OIDC_OP_JWKS_ENDPOINT = OIDC_CONFIGURATION["jwks_uri"]
-
-            # Save OIDC configuration to file
-            oidc_config_file.write_text(response.text)
-    except Exception as e:
-        print(
-            f"Failed to load OIDC configuration from {os.getenv('OIDC_DISCOVERY_DOCUMENT')}"
-        )
+# OIDC configuration
+OIDC_RP_CLIENT_ID = os.getenv("OIDC_CLIENT_ID", "")
+OIDC_RP_CLIENT_SECRET = os.getenv("OIDC_CLIENT_SECRET", "")
+OIDC_OP_AUTHORIZATION_ENDPOINT = os.getenv("OIDC_AUTHORIZATION_ENDPOINT", "")
+OIDC_OP_TOKEN_ENDPOINT = os.getenv("OIDC_TOKEN_ENDPOINT", "")
+OIDC_OP_USER_ENDPOINT = os.getenv("OIDC_USER_ENDPOINT", "")
+OIDC_OP_JWKS_ENDPOINT = os.getenv("OIDC_JWKS_ENDPOINT", "")
 
 OIDC_RP_SIGN_ALGO = "RS256"
 LOGIN_URL = "login_proxy"

@@ -8,8 +8,6 @@ from django.shortcuts import redirect
 import urllib.parse
 import requests
 
-from nano_siem import settings
-
 logger = logging.getLogger(__name__)
 
 
@@ -21,7 +19,7 @@ def user_logout(request):
             "client_id": os.getenv("OIDC_CLIENT_ID", ""),
         }
         query_string = urlencode(query)
-        return f"{settings.OIDC_CONFIGURATION['end_session_endpoint']}?{query_string}"
+        return f"{os.getenv('OIDC_END_SESSION_ENDPOINT', '')}?{query_string}"
     else:
         logout(request)
         return reverse("login")
@@ -39,10 +37,10 @@ def login_proxy(request):
 
 
 def _use_oidc() -> bool:
-    if not os.getenv("OIDC_DISCOVERY_DOCUMENT"):
+    if not os.getenv("OIDC_JWKS_ENDPOINT"):
         return False
     try:
-        response = requests.get(os.getenv("OIDC_DISCOVERY_DOCUMENT"))
+        response = requests.get(os.getenv("OIDC_JWKS_ENDPOINT", ""))
         if response.status_code == 200:
             return True
         else:
