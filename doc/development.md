@@ -1,3 +1,8 @@
+# Start Development Server
+
+- Set environment variable: ``DEBUG=True``
+- Execute ``python manage.py runserver``
+
 # Write a New HTTP Log Module
 
 Take a look at the existing [Traefik](../plugins/http_logs/modules/traefik.py) module.

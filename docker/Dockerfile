@@ -28,4 +28,7 @@ COPY docker/mime.types /etc/nginx/conf/mime.types
 RUN echo "@reboot NanoSiem /usr/bin/geoipupdate -v -d /home/NanoSiem/.nano_siem/geolite2 >> /home/NanoSiem/.nano_siem/crontab.log 2>&1" >> /etc/crontab
 RUN echo "58 5 * * 6,3 NanoSiem /usr/bin/geoipupdate -v -d /home/NanoSiem/.nano_siem/geolite2 >> /home/NanoSiem/.nano_siem/crontab.log 2>&1" >> /etc/crontab
 
-CMD env | grep -v HOME >> /etc/environment && cron && nginx && gunicorn --timeout 300 -b localhost:8000 -u NanoSiem nano_siem.wsgi
+COPY docker/entrypoint.sh .
+RUN chmod +x entrypoint.sh
+
+CMD /var/nano_siem/entrypoint.sh

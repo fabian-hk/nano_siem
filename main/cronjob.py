@@ -1,21 +1,21 @@
 import logging
-import os
 from threading import Thread
 
-# import django
+logger = logging.getLogger(__name__)
 
-# Prepare Django framework to make database transaction
-# os.environ["DJANGO_SETTINGS_MODULE"] = "nano_siem.settings"
-# django.setup()
+# Only for debugging purposes
+if __name__ == "__main__":
+    logger.setLevel(logging.INFO)
+    import os
+    import django
+
+    # Prepare Django framework to make database transaction
+    os.environ["DJANGO_SETTINGS_MODULE"] = "nano_siem.settings"
+    django.setup()
 
 from plugins.overwatch import cronjob as overwatch_cronjob
 from plugins.http_logs import cronjob as http_log_cronjob
 from main.notifications import run as notifications
-
-logger = logging.getLogger(__name__)
-
-
-# logger.setLevel(logging.DEBUG)
 
 
 def cronjob():
@@ -38,4 +38,5 @@ def cronjob():
 
 
 if __name__ == "__main__":
+    logger.info("Running cronjob in debug mode")
     cronjob()
