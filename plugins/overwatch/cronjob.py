@@ -1,4 +1,5 @@
 from typing import Tuple
+from threading import Thread
 import shutil
 import logging
 import operator
@@ -27,22 +28,43 @@ def run():
 
     logger.info("Run overwatch job")
 
+    threads = []
     i = 0
     while os.getenv(f"OVERWATCH_{i}", None):
         name, type = _parse_config(os.getenv(f"OVERWATCH_{i}"))
         if type == "disk":
-            disk_availability(os.getenv(f"OVERWATCH_{i}"))
+            threads.append(
+                Thread(target=disk_availability, args=(os.getenv(f"OVERWATCH_{i}"),))
+            )
         elif type == "tcp":
-            tcp_server_availability(os.getenv(f"OVERWATCH_{i}"))
+            threads.append(
+                Thread(
+                    target=tcp_server_availability, args=(os.getenv(f"OVERWATCH_{i}"),)
+                )
+            )
         elif type == "http":
-            http_server_availability(os.getenv(f"OVERWATCH_{i}"))
+            threads.append(
+                Thread(
+                    target=http_server_availability, args=(os.getenv(f"OVERWATCH_{i}"),)
+                )
+            )
         elif type == "ping":
-            ping_availability(os.getenv(f"OVERWATCH_{i}"))
+            threads.append(
+                Thread(target=ping_availability, args=(os.getenv(f"OVERWATCH_{i}"),))
+            )
         i += 1
+
+    # Start all threads
+    for t in threads:
+        t.start()
 
     # Delete services without a corresponding environment variable from database
     if os.getenv("OW_REMOVE_OLD_SERVICES", "True") == "True":
         clean_database()
+
+    # Wait for all threads to finish
+    for t in threads:
+        t.join()
 
 
 def get_network_service(config: str, type: str) -> NetworkService:
@@ -76,7 +98,7 @@ def tcp_server_availability(config):
         start = time.time_ns()
         sock = socket.create_connection(
             (service.host, service.port),
-            timeout=int(os.getenv("OW_NETWORK_TIMEOUT", "10")),
+            timeout=int(os.getenv("OW_NETWORK_TIMEOUT", "30")),
         )
         time_ms = (time.time_ns() - start) / 1000000
         logger.debug(f"Time to connect to TCP server: {time_ms}ms")
@@ -99,7 +121,7 @@ def http_server_availability(config):
     try:
         response = requests.get(
             service.host,
-            timeout=int(os.getenv("OW_NETWORK_TIMEOUT", "10")),
+            timeout=int(os.getenv("OW_NETWORK_TIMEOUT", "30")),
             verify=(os.getenv("OW_HTTP_VERIFY_SSL", "True") == "True"),
             allow_redirects=False,
         )

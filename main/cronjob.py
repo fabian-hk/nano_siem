@@ -1,5 +1,5 @@
 import logging
-from threading import Thread
+from multiprocessing import Process
 
 logger = logging.getLogger(__name__)
 
@@ -22,11 +22,11 @@ def cronjob():
     logger.info("Start cronjob")
 
     # Running Traefik log parsing job
-    http_log_cronjob_thread = Thread(target=http_log_cronjob.run)
+    http_log_cronjob_thread = Process(target=http_log_cronjob.run)
     http_log_cronjob_thread.start()
 
     # Running overwatch job
-    overwatch_cronjob_thread = Thread(target=overwatch_cronjob.run)
+    overwatch_cronjob_thread = Process(target=overwatch_cronjob.run)
     overwatch_cronjob_thread.start()
 
     # Wait for all jobs to finish
