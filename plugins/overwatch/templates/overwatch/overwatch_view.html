@@ -57,10 +57,10 @@
                 <tr class="clickable-row" data-name="{{ i.name }}" data-type="http">
                     <td data-toggle="tooltip" data-placement="right" title="{{ i.details }}">{{ i.name }}</td>
                     <td>
-                        {%  if i.available %}
+                        {%  if not i.unavailable_since %}
                             <span class="green-dot" data-toggle="tooltip" data-placement="right" title="Available"></span>
                         {% else %}
-                            <span class="red-dot" data-toggle="tooltip" data-placement="right" title="Unavailable"></span>
+                            <span class="red-dot" data-toggle="tooltip" data-placement="right" title="Unavailable since {{ i.unavailable_since | localtime }}"></span>
                         {% endif %}
                     </td>
                     <td>{{ i.up_time }}</td>
@@ -85,10 +85,10 @@
                 <tr class="clickable-row" data-name="{{ i.name }}" data-type="tcp">
                     <td data-toggle="tooltip" data-placement="right" title="{{ i.details }}">{{ i.name }}</td>
                     <td>
-                        {%  if i.available %}
+                        {%  if not i.unavailable_since %}
                             <span class="green-dot" data-toggle="tooltip" data-placement="right" title="Available"></span>
                         {% else %}
-                            <span class="red-dot" data-toggle="tooltip" data-placement="right" title="Unavailable"></span>
+                            <span class="red-dot" data-toggle="tooltip" data-placement="right" title="Unavailable since {{ i.unavailable_since | localtime }}"></span>
                         {% endif %}
                     </td>
                     <td>{{ i.up_time }}</td>
@@ -113,10 +113,10 @@
                 <tr class="clickable-row" data-name="{{ i.name }}" data-type="ping">
                     <td data-toggle="tooltip" data-placement="right" title="{{ i.details }}">{{ i.name }}</td>
                     <td>
-                        {%  if i.available %}
+                        {%  if not i.unavailable_since %}
                             <span class="green-dot" data-toggle="tooltip" data-placement="right" title="Available"></span>
                         {% else %}
-                            <span class="red-dot" data-toggle="tooltip" data-placement="right" title="Unavailable"></span>
+                            <span class="red-dot" data-toggle="tooltip" data-placement="right" title="Unavailable since {{ i.unavailable_since | localtime }}"></span>
                         {% endif %}
                     </td>
                     <td>{{ i.up_time }}</td>
@@ -141,10 +141,10 @@
                     <tr class="clickable-row" data-name="{{ i.name }}" data-type="disk">
                         <td data-toggle="tooltip" data-placement="right" title="{{ i.details }}">{{ i.name }}</td>
                         <td>
-                            {%  if i.available %}
+                            {%  if not i.unavailable_since %}
                                 <span class="green-dot" data-toggle="tooltip" data-placement="right" title="Available"></span>
                             {% else %}
-                                <span class="red-dot" data-toggle="tooltip" data-placement="right" title="Unavailable"></span>
+                                <span class="red-dot" data-toggle="tooltip" data-placement="right" title="Unavailable since {{ i.unavailable_since | localtime }}"></span>
                             {% endif %}
                         </td>
                         <td>{{ i.up_time }}</td>

@@ -79,9 +79,7 @@ def get_network_service(config: str, type: str) -> NetworkService:
         service.port = port
         return service
     else:
-        return NetworkService(
-            name=name, type=type, host=host, port=port, available=False
-        )
+        return NetworkService(name=name, type=type, host=host, port=port)
 
 
 def tcp_server_availability(config):
@@ -104,13 +102,10 @@ def tcp_server_availability(config):
         logger.debug(f"Time to connect to TCP server: {time_ms}ms")
         sock.shutdown(socket.SHUT_RDWR)
         sock.close()
-        service.available = True
-        service.notified = False
+        service.available()
     except socket.error as e:
         time_ms = 0
-        service.available = False
-
-    service.save()
+        service.unavailable()
 
     NetworkServiceLog(service=service, latency=time_ms).save()
 
@@ -128,16 +123,13 @@ def http_server_availability(config):
         time_ms = response.elapsed.total_seconds() * 1000
         logger.debug(f"Time to connect to HTTP server: {time_ms}ms")
         if response.status_code < 400:
-            service.available = True
-            service.notified = False
+            service.available()
         else:
             time_ms = 0
-            service.available = False
+            service.unavailable()
     except requests.exceptions.RequestException as e:
         time_ms = 0
-        service.available = False
-
-    service.save()
+        service.unavailable()
 
     NetworkServiceLog(service=service, latency=time_ms).save()
 
@@ -152,21 +144,18 @@ def ping_availability(config: str):
     result.wait()
     time_ms = 0
     if result.returncode == 0:
-        service.available = True
-        service.notified = False
+        service.available()
         output = result.stdout.readlines()[-1].decode("utf-8").split("/")
         if len(output) >= 5:
             avg = output[4]
             time_ms = float(avg)
     else:
-        service.available = False
-
-    service.save()
+        service.unavailable()
 
     NetworkServiceLog(service=service, latency=time_ms).save()
 
 
-def get_disk_service(config: str) -> DiskService:
+def get_disk_service(config: str) -> DiskService | None:
     config_split = config.split(",")
     if len(config_split) > 2:
         name = config_split[0]
@@ -226,11 +215,10 @@ def disk_availability(config: str):
         except FileNotFoundError as e:
             available = False
 
-    service.available = available
     if available:
-        service.notified = False
-
-    service.save()
+        service.available()
+    else:
+        service.unavailable()
 
     usage_free = 0
     usage_used = 0

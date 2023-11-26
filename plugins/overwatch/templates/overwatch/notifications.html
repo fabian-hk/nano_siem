@@ -1,7 +1,7 @@
 {% if ow_services_header %}
     {% load tz %}
     <h2>Overwatch</h2>
-    <p>Some services are not available:</p>
+    <p>There are changes in service availability:</p>
     {% if ow_http_services %}
     <h3>HTTP Services</h3>
     <table>
@@ -16,11 +16,11 @@
             {% for i in ow_http_services %}
                 <tr>
                     <td>{{ i.name }}</td>
-                    <td>
-                        {%  if i.available %}
+                    <td style="max-width: 110px; text-align: center">
+                        {%  if not i.unavailable_since %}
                             <span style="height: 25px; width: 25px; background-color: green; border-radius: 50%; display: inline-block;"></span>
                         {% else %}
-                            <span style="height: 25px; width: 25px; background-color: red; border-radius: 50%; display: inline-block;"></span>
+                            <p style="background-color:red; color:white; border-radius: 25px; padding: 10px; font-size: 12px;">{{ i.unavailable_since | localtime }}</p>
                         {% endif %}
                     </td>
                     <td>{{ i.up_time }}</td>
@@ -44,11 +44,11 @@
             {% for i in ow_tcp_services %}
                 <tr>
                     <td>{{ i.name }}</td>
-                    <td>
-                        {%  if i.available %}
+                    <td style="max-width: 110px; text-align: center">
+                        {%  if not i.unavailable_since %}
                             <span style="height: 25px; width: 25px; background-color: green; border-radius: 50%; display: inline-block;"></span>
                         {% else %}
-                            <span style="height: 25px; width: 25px; background-color: red; border-radius: 50%; display: inline-block;"></span>
+                            <p style="background-color:red; color:white; border-radius: 25px; padding: 10px; font-size: 12px;">{{ i.unavailable_since | localtime }}</p>
                         {% endif %}
                     </td>
                     <td>{{ i.up_time }}</td>
@@ -72,11 +72,11 @@
             {% for i in ow_ping_services %}
                 <tr>
                     <td>{{ i.name }}</td>
-                    <td>
-                        {%  if i.available %}
+                    <td style="max-width: 110px; text-align: center">
+                        {%  if not i.unavailable_since %}
                             <span style="height: 25px; width: 25px; background-color: green; border-radius: 50%; display: inline-block;"></span>
                         {% else %}
-                            <span style="height: 25px; width: 25px; background-color: red; border-radius: 50%; display: inline-block;"></span>
+                            <p style="background-color:red; color:white; border-radius: 25px; padding: 10px; font-size: 12px;">{{ i.unavailable_since | localtime }}</p>
                         {% endif %}
                     </td>
                     <td>{{ i.up_time }}</td>
@@ -100,11 +100,11 @@
             {% for i in ow_disk_services %}
                 <tr>
                     <td>{{ i.name }}</td>
-                    <td>
-                        {%  if i.available %}
+                    <td style="max-width: 110px; text-align: center">
+                        {%  if not i.unavailable_since %}
                             <span style="height: 25px; width: 25px; background-color: green; border-radius: 50%; display: inline-block;"></span>
                         {% else %}
-                            <span style="height: 25px; width: 25px; background-color: red; border-radius: 50%; display: inline-block;"></span>
+                            <p style="background-color:red; color:white; border-radius: 25px; padding: 10px; font-size: 12px;">{{ i.unavailable_since | localtime }}</p>
                         {% endif %}
                     </td>
                     <td>{{ i.up_time }}</td>
