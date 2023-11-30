@@ -52,12 +52,15 @@ def table_view(request):
     )[:max_events]
     logger.debug(f"Time to load events from database: {time.time() - t}s")
 
-    t = time.time()
-    # The following code could be optimized if nothing was deleted from the database:
-    # ServiceLog.objects.last().id
-    # ServiceLog.objects.last().id - ServiceLog.objects.first().id
-    num_log_lines = ServiceLog.objects.count()
-    logger.debug(f"Time to count number of events: {time.time() - t}s")
+    num_log_lines = None
+    if request.GET.get("count", False):
+        t = time.time()
+        # The following code could be optimized if nothing was deleted from the database:
+        # ServiceLog.objects.last().id
+        # ServiceLog.objects.last().id - ServiceLog.objects.first().id
+        num_log_lines = ServiceLog.objects.count()
+        logger.debug(f"Time to count number of events: {time.time() - t}s")
+
     cron_job_running = bool(service.running)
 
     context = {
