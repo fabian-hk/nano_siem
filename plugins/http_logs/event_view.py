@@ -31,7 +31,9 @@ def event_view(request):
     malicious_events = (
         ServiceLog.objects.filter(longitude__isnull=False, latitude__isnull=False)
         .exclude(ids_score__exact=IDS_SCORE_PARSER_FAILURE)
-        .order_by("-ids_score", "-timestamp")
+        # Split the order_by methods to improve performance massively
+        .order_by("-timestamp")
+        .order_by("-ids_score")
         .values(
             "timestamp",
             "requested_service",
@@ -136,5 +138,5 @@ def event_view(request):
         "header_tor": header_malicious,
         "tor_events": tor_events,
     }
-
+    logger.debug("Rendering event view...")
     return render(request, "http_logs/event_view.html", context)
