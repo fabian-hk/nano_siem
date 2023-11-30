@@ -6,9 +6,21 @@
     {% include "header.html" %}
 </head>
 <style>
-    .center {
-        margin: auto;
-        width: 70%;
+    @media screen and (min-width: 500px) {
+        .center {
+            margin: auto;
+            width: 70%;
+        }
+    }
+    @media screen and (min-width: 576px) {
+        .modal-custom {
+            max-width: 80%
+        }
+    }
+    @media screen and (max-width: 500px) {
+        .center {
+            margin: 10px;
+        }
     }
     h1 {
         margin-top: 20px;
@@ -157,7 +169,7 @@
 
     <!-- The Modal -->
     <div class="modal" id="myModal">
-      <div class="modal-dialog" style="max-width: 80%">
+      <div class="modal-dialog modal-custom">
         <div class="modal-content">
 
           <!-- Modal Header -->
