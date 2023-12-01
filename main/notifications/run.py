@@ -45,7 +45,9 @@ def send_notifications():
 
         # Render the HTML content for the email
         data["instance_name"] = os.getenv("INSTANCE_NAME", "My Nano SIEM")
-        html = render_to_string("notifications/notification_template.html", context=data)
+        html = render_to_string(
+            "notifications/notification_template.html", context=data
+        )
         part2 = MIMEText(html, "html")
         message.attach(part2)
 

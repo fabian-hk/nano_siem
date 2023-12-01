@@ -117,10 +117,6 @@ OW_DISK_PLOT_SMOOTHING=60
 # Number of seconds a service can be unavailable 
 # before the first notification is sent.
 OW_TIMEOUT_FIRST_NOTIFICATION=180
-
-# Number of seconds a service can be unavailable
-# before a reminder notification is sent.
-OW_TIMEOUT_REMINDER_NOTIFICATION=3600
 ```
 
 # Debugging

@@ -1,8 +1,8 @@
 import os
-from datetime import datetime
-from django.utils.timezone import make_aware
+from django.utils import timezone
 
 from .models import NetworkService, DiskService
+from .models.base_model import BaseModel
 from .view import get_data_as_table
 
 
@@ -14,37 +14,37 @@ def get_notification_data() -> dict:
 
 def sent_notifications() -> bool:
     notify = False
-    for service in NetworkService.objects.all():
-        if service.unavailable_since and (
-            (  # Send notification email, if service is unavailable for 3 minutes
-                not service.notified
-                and (
-                    make_aware(datetime.now()) - service.unavailable_since
-                ).total_seconds()
-                > int(os.getenv("OW_TIMEOUT_FIRST_NOTIFICATION", "180"))
-            )
-            or (  # Resend notification email, if service is still unavailable after 1 hour
-                service.notified
-                and (
-                    make_aware(datetime.now()) - service.unavailable_since
-                ).total_seconds()
-                > int(os.getenv("OW_TIMEOUT_REMINDER_NOTIFICATION", "3600")) # TODO fix bug with resending every time after 1 hour
-            )
-        ):
+    notify |= check_services(NetworkService.objects.all())
+    notify |= check_services(DiskService.objects.all())
+    return notify
+
+
+def check_services(services) -> bool:
+    notify = False
+    for service in services:
+        # Send notification email if service becomes unavailable
+        if notification_on_unavailability(service):
             notify = True
             service.notified = True
             service.save()
-        elif (
-                not service.unavailable_since and service.notified
-        ):  # Send notification email if service becomes available again
+        # Send notification email if service becomes available again
+        elif not service.unavailable_since and service.notified:
             notify = True
             service.notified = False
             service.save()
-
-    for service in DiskService.objects.all():
-        if not service.available and not service.notified:
+        # Notify once an hour if a service is unavailable
+        elif service.notified and timezone.now().minute == 0:
             notify = True
-            service.notified = True
-            service.save()
-
     return notify
+
+
+def notification_on_unavailability(service: BaseModel) -> bool:
+    if not service.unavailable_since:
+        return False
+
+    t = (timezone.now() - service.unavailable_since).total_seconds()
+
+    # Send notification email, if service is unavailable for a certain amount of time (default 3 minutes)
+    return not service.notified and t > int(
+        os.getenv("OW_TIMEOUT_FIRST_NOTIFICATION", "180")
+    )

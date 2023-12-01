@@ -29,12 +29,14 @@ def cronjob():
     overwatch_cronjob_thread = Process(target=overwatch_cronjob.run)
     overwatch_cronjob_thread.start()
 
+    # Running notification service
+    notifications_thread = Process(target=notifications.send_notifications)
+    notifications_thread.start()
+
     # Wait for all jobs to finish
     http_log_cronjob_thread.join()
     overwatch_cronjob_thread.join()
-
-    # Send notifications, if available
-    notifications.send_notifications()
+    notifications_thread.join()
 
 
 if __name__ == "__main__":

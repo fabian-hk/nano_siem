@@ -29,3 +29,14 @@ services:
       - MARIADB_RANDOM_ROOT_PASSWORD=yes
     ports:
       - 127.0.0.1:3306:3306
+
+  nano_siem_test_db:
+    image: mariadb:10.10
+    user: 1000:1000
+    volumes:
+      - $PWD/../nano_siem_data/test_database:/var/lib/mysql
+    command: --innodb-buffer-pool-size=5G --key-buffer-size=1G
+    environment:
+      - MARIADB_ROOT_PASSWORD=${MYSQL_PASSWORD}
+    ports:
+      - 127.0.0.1:3307:3306

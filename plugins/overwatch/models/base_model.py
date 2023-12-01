@@ -1,6 +1,5 @@
 from django.db import models
-from datetime import datetime
-from django.utils.timezone import make_aware
+from django.utils import timezone
 
 
 class BaseModel(models.Model):
@@ -20,5 +19,5 @@ class BaseModel(models.Model):
 
     def unavailable(self):
         if not self.unavailable_since:
-            self.unavailable_since = make_aware(datetime.now())
+            self.unavailable_since = timezone.now()
         self.save()
