@@ -1,3 +1,19 @@
+# Version 0.2.0 - [tbd]
+
+- Overwatch:
+  - Models changed to record start date of unavailability, so run ``python manage.py migrate``
+    (the docker container does it automatically)
+  - Notification settings changed
+    - First notification is only sent after a certain amount of time
+    - Every hour a new notification is sent if there are unavailable services
+  - Availability check are executed in threads
+  - HTTP availability check includes a custom user agent
+- Http_logs: Log parsing jobs are reseted at start of docker container (``python -m plugins.http_logs.startup``)
+- Improved loading time of Events and HTTP Logs pages
+- Improved UI on mobile devices
+- Cronjobs are now run in processes
+- Updated dependencies
+
 # Version 0.1.0 - 31.03.2023
 
 - Add proper fallback login if OIDC provider is not available

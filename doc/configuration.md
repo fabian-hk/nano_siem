@@ -83,6 +83,10 @@ OVERWATCH_{i}=Name,disk,<device>,<mount point>,<uuid>
 # you have to set this to 'False'.
 OW_HTTP_VERIFY_SSL=True
 
+# Set user agent for http availability checks.
+# Default: Nano SIEM Overwatch availability check
+OW_HTTP_USER_AGENT=<user agent>
+
 # Configure the timeout for network service availability checks.
 OW_NETWORK_TIMEOUT=10
 

@@ -114,11 +114,17 @@ def http_server_availability(config):
     service = get_network_service(config, "http")
 
     try:
+        header = {
+            "User-Agent": os.getenv(
+                "OW_HTTP_USER_AGENT", "Nano SIEM Overwatch availability check"
+            )
+        }
         response = requests.get(
             service.host,
             timeout=int(os.getenv("OW_NETWORK_TIMEOUT", "30")),
             verify=(os.getenv("OW_HTTP_VERIFY_SSL", "True") == "True"),
             allow_redirects=False,
+            headers=header,
         )
         time_ms = response.elapsed.total_seconds() * 1000
         logger.debug(f"Time to connect to HTTP server: {time_ms}ms")

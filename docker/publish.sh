@@ -2,7 +2,7 @@
 
 docker run --privileged --rm tonistiigi/binfmt --install all
 
-VERSION=0.1.0
+VERSION=latest
 
 docker buildx build --push --platform linux/amd64 -t fabianhk/nano-siem:amd64-${VERSION} -f docker/Dockerfile .
 docker buildx build --push --platform linux/arm64 -t fabianhk/nano-siem:arm64-${VERSION} -f docker/Dockerfile .
