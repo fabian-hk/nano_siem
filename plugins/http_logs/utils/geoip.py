@@ -10,7 +10,7 @@ from plugins.http_logs.models import ServiceLog
 
 logger = logging.getLogger(__name__)
 
-geoip2_default_path = "/home/NanoSiem/.nano_siem/geolite2"
+geoip2_default_path = "/home/ubuntu/.nano_siem/geolite2"
 
 
 def ip_to_coordinates(ip: str, log_line: ServiceLog):
@@ -20,7 +20,7 @@ def ip_to_coordinates(ip: str, log_line: ServiceLog):
     # Try to download the GeoLite2 database if it does not exist
     if not os.path.exists(geolite2_city_db_path) or not os.path.exists(geolite2_asn_db_path):
         logger.warning("GeoLite2 database not found. Trying to download it from the internet...")
-        result = subprocess.Popen(["/usr/bin/geoipupdate", "-v", "-d", "/home/NanoSiem/.nano_siem/geolite2"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        result = subprocess.Popen(["/usr/bin/geoipupdate", "-v", "-d", geoip2_default_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         result.wait()
         if result.returncode != 0:
             logger.error(f"Error updating GeoLite2 database: {result.stderr.readlines()}")

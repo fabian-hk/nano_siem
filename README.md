@@ -60,7 +60,7 @@ USE_X_FORWARDED_HOST=True
 
 **Only for debugging:**
 If you want to see the logs of the cronjob you have to mount 
-a log file to: ``/home/NanoSiem/.nano_siem/crontab.log``.
+a log file to: ``/home/ubuntu/.nano_siem/crontab.log``.
 
 ### Database
 
@@ -80,7 +80,9 @@ docker exec -it <container name> python3 manage.py migrate
 
 #### OpenID Connect
 
-The OpenID Connect login is tested with the Keycloak authorization server.
+The OpenID Connect login is tested with the Keycloak and Authentik.
+In the authorization server you have to create a new client with the redirect URI
+``https://<DOMAIN_NAME>/oidc/callback/``.
 
 ```bash
 OIDC_CLIENT_ID=<CLIENT_ID>

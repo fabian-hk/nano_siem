@@ -1,5 +1,6 @@
 # Version 0.2.0 - [tbd]
 
+- **Breaking change:** crontab.log has to be mounted to ``/home/ubuntu/.nano_siem/crontab.log``
 - Overwatch:
   - Models changed to record start date of unavailability, so run ``python manage.py migrate``
     (the docker container does it automatically)

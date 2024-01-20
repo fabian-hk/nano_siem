@@ -67,6 +67,7 @@ MIDDLEWARE = [
 # OIDC configuration
 OIDC_RP_CLIENT_ID = os.getenv("OIDC_CLIENT_ID", "")
 OIDC_RP_CLIENT_SECRET = os.getenv("OIDC_CLIENT_SECRET", "")
+OIDC_RP_SCOPES = "openid profile email"
 OIDC_OP_AUTHORIZATION_ENDPOINT = os.getenv("OIDC_AUTHORIZATION_ENDPOINT", "")
 OIDC_OP_TOKEN_ENDPOINT = os.getenv("OIDC_TOKEN_ENDPOINT", "")
 OIDC_OP_USER_ENDPOINT = os.getenv("OIDC_USER_ENDPOINT", "")
@@ -170,7 +171,7 @@ CRONJOBS = [
     (
         "*/1 * * * *",
         "main.cronjob.cronjob",
-        ">> /home/NanoSiem/.nano_siem/crontab.log 2>&1",
+        ">> /home/ubuntu/.nano_siem/crontab.log 2>&1",
     )
 ]
 
