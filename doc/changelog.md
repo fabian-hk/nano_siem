@@ -1,4 +1,4 @@
-# Version 0.2.0 - [tbd]
+# Version 0.2.0 - 20.01.2024
 
 - **Breaking change:** crontab.log has to be mounted to ``/home/ubuntu/.nano_siem/crontab.log``
 - Overwatch:
