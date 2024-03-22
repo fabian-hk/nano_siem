@@ -6,7 +6,8 @@ docker-compose up -d nano_siem_db
 echo "Waiting for database to start..."
 sleep 30
 docker-compose up -d nano_siem
-docker-compose exec nano_siem python3 manage.py migrate sessions
-docker-compose exec nano_siem python3 manage.py migrate auth
-docker-compose exec nano_siem python3 manage.py migrate contenttypes
-docker-compose exec nano_siem python3 manage.py createsuperuser --username admin --email admin@localhost
+docker-compose exec nano_siem /bin/bash -c ". ./venv/bin/activate && python manage.py migrate sessions"
+docker-compose exec nano_siem /bin/bash -c ". ./venv/bin/activate && python manage.py migrate auth"
+docker-compose exec nano_siem /bin/bash -c ". ./venv/bin/activate && python manage.py migrate contenttypes"
+docker-compose exec nano_siem /bin/bash -c ". ./venv/bin/activate && python manage.py migrate overwatch"
+docker-compose exec nano_siem /bin/bash -c ". ./venv/bin/activate && python manage.py createsuperuser --username admin --email admin@localhost"
