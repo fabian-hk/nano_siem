@@ -9,5 +9,4 @@ docker-compose up -d nano_siem
 docker-compose exec nano_siem /bin/bash -c ". ./venv/bin/activate && python manage.py migrate sessions"
 docker-compose exec nano_siem /bin/bash -c ". ./venv/bin/activate && python manage.py migrate auth"
 docker-compose exec nano_siem /bin/bash -c ". ./venv/bin/activate && python manage.py migrate contenttypes"
-docker-compose exec nano_siem /bin/bash -c ". ./venv/bin/activate && python manage.py migrate overwatch"
 docker-compose exec nano_siem /bin/bash -c ". ./venv/bin/activate && python manage.py createsuperuser --username admin --email admin@localhost"
