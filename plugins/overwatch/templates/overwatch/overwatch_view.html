@@ -179,9 +179,7 @@
           </div>
 
           <!-- Modal body -->
-          <div class="modal-body">
-            <img id="latency-plot" src="" alt="Latency Graph" width="100%">
-          </div>
+          <div id="modal-body" class="modal-body"></div>
 
           <!-- Modal footer -->
           <div class="modal-footer">
@@ -200,7 +198,11 @@
     jQuery(document).ready(function($) {
         $(".clickable-row").click(function() {
             $("#modal-title").text($(this).data("name") + " Availability");
-            $("#latency-plot").attr("src", "/api/overwatch/latency-plot/?type=" + encodeURIComponent($(this).data("type")) + "&name=" + encodeURIComponent($(this).data("name")));
+            fetch("/api/overwatch/latency-plot/?type=" + encodeURIComponent($(this).data("type")) + "&name=" + encodeURIComponent($(this).data("name")))
+                .then(response => response.text())
+                .then(htmlPlot => {
+                    $("#modal-body").html(htmlPlot);
+                });
             $("#myModal").modal("show");
         });
     });

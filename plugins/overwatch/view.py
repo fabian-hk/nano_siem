@@ -11,6 +11,8 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 import numpy as np
 import matplotlib.pyplot as plt
+import plotly.express as px
+import plotly.graph_objs as go
 
 from plugins.overwatch.models import (
     NetworkService,
@@ -35,7 +37,7 @@ def smooth_plots(timestamps: List[datetime], values: List[float], kernel_size: i
     return timestamps, values
 
 
-def plot_network_service(name: str, type: str):
+def plot_network_service(name: str, type: str) -> go.Figure:
     service = NetworkService.objects.get(name=name, type=type)
 
     start_date = make_aware(
@@ -56,9 +58,12 @@ def plot_network_service(name: str, type: str):
     kernel_size = int(os.getenv("OW_LATENCY_PLOT_SMOOTHING", "60"))
     timestamps, latencies = smooth_plots(timestamps, latencies, kernel_size)
 
-    plt.plot(timestamps, latencies)
-    plt.title(f"{service.name} Latency Plot")
-    plt.ylabel("Latency (ms)")
+    #plt.plot(timestamps, latencies)
+    #plt.title(f"{service.name} Latency Plot")
+    #plt.ylabel("Latency (ms)")
+    fig = px.line(x=timestamps, y=latencies, title=f"{service.name} Latency Plot", labels={"x": "Date", "y": "Latency (ms)"})
+    return fig
+
 
 
 def plot_disk_service(name: str, type: str):
@@ -95,19 +100,22 @@ def latency_plot(request):
     if type is None or name is None:
         return HttpResponse(status=400)
 
-    plt.figure(figsize=(10, 5))
-    plt.rcParams["font.size"] = 12
+    
     if type == "disk":
+        plt.figure(figsize=(10, 5))
+        plt.rcParams["font.size"] = 12
         plot_disk_service(name, type)
+        plt.xlabel("Date")
+
+        svg_str = io.BytesIO()
+        plt.savefig(svg_str, format="svg")
+        plt.close()
+
+        return HttpResponse(svg_str.getvalue(), content_type="image/svg+xml")
     else:
-        plot_network_service(name, type)
-    plt.xlabel("Date")
-
-    svg_str = io.BytesIO()
-    plt.savefig(svg_str, format="svg")
-    plt.close()
-
-    return HttpResponse(svg_str.getvalue(), content_type="image/svg+xml")
+        fig = plot_network_service(name, type)
+        return HttpResponse(fig.to_html(full_html=False), content_type="text/html")
+    
 
 
 def get_data_as_table():
