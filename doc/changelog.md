@@ -1,3 +1,8 @@
+# Version 0.2.1 - 20.05.2024
+
+- Overwatch: Replacement of matplotlib with plotly for graphs
+- Updated dependencies
+
 # Version 0.2.0 - 20.01.2024
 
 - **Breaking change:** crontab.log has to be mounted to ``/home/ubuntu/.nano_siem/crontab.log``
