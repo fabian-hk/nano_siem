@@ -34,7 +34,7 @@
     .red-dot {
         height: 25px;
         width: 25px;
-        background-color: red;
+        background-color: #dc3545;
         border-radius: 50%;
         display: inline-block;
     }
@@ -44,6 +44,59 @@
         background-color: green;
         border-radius: 50%;
         display: inline-block;
+    }
+
+    /* Loading animation code (Source: https://cssloaders.github.io/) */
+    .loader {
+        width: 144px;
+        height: 144px;
+        border-radius: 50%;
+        display: inline-block;
+        position: relative;
+        border: 10px solid;
+        border-color: grey grey transparent;
+        box-sizing: border-box;
+        animation: rotation 1s linear infinite;
+    }
+    .loader::after {
+        content: '';
+        box-sizing: border-box;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        margin: auto;
+        border: 10px solid;
+        border-color: transparent #dc3545 #dc3545;
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        animation: rotationBack 0.5s linear infinite;
+        transform-origin: center center;
+    }
+
+    @keyframes rotation {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    @keyframes rotationBack {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(-360deg);
+        }
+    }
+
+    .loader-center {
+        margin: auto;
+        width: 144px;
     }
 </style>
 <body>
@@ -179,9 +232,7 @@
           </div>
 
           <!-- Modal body -->
-          <div class="modal-body">
-            <img id="latency-plot" src="" alt="Latency Graph" width="100%">
-          </div>
+          <div id="modal-body" class="modal-body"></div>
 
           <!-- Modal footer -->
           <div class="modal-footer">
@@ -199,9 +250,14 @@
     })
     jQuery(document).ready(function($) {
         $(".clickable-row").click(function() {
-            $("#modal-title").text($(this).data("name") + " Availability");
-            $("#latency-plot").attr("src", "/api/overwatch/latency-plot/?type=" + encodeURIComponent($(this).data("type")) + "&name=" + encodeURIComponent($(this).data("name")));
+            $("#modal-title").text($(this).data("name"));
+            $("#modal-body").html("<div class=\"loader-center\"><span class=\"loader\"></span></div>");
             $("#myModal").modal("show");
+            fetch("/api/overwatch/latency-plot/?type=" + encodeURIComponent($(this).data("type")) + "&name=" + encodeURIComponent($(this).data("name")))
+                .then(response => response.text())
+                .then(htmlPlot => {
+                    $("#modal-body").html(htmlPlot);
+                });
         });
     });
 </script>
