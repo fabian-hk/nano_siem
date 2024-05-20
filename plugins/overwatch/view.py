@@ -1,7 +1,6 @@
 from typing import List
 import logging
 import os
-import io
 from datetime import datetime, timedelta
 
 from django.forms import model_to_dict
@@ -9,10 +8,9 @@ from django.shortcuts import render
 from django.utils.timezone import make_aware
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
+from django.templatetags.static import static
 import numpy as np
-import matplotlib.pyplot as plt
 import plotly.express as px
-import plotly.graph_objs as go
 
 from plugins.overwatch.models import (
     NetworkService,
@@ -33,11 +31,11 @@ def overwatch_view(request):
 def smooth_plots(timestamps: List[datetime], values: List[float], kernel_size: int):
     if len(values) > 2 * kernel_size:
         values = np.convolve(values, np.ones(kernel_size) / kernel_size, mode="valid")
-        timestamps = timestamps[kernel_size // 2 : -kernel_size // 2 + 1]
+        timestamps = timestamps[kernel_size // 2: -kernel_size // 2 + 1]
     return timestamps, values
 
 
-def plot_network_service(name: str, type: str) -> go.Figure:
+def plot_network_service(name: str, type: str) -> str:
     service = NetworkService.objects.get(name=name, type=type)
 
     start_date = make_aware(
@@ -52,21 +50,23 @@ def plot_network_service(name: str, type: str) -> go.Figure:
     timestamps = []
     latencies = []
     for log in logs:
-        timestamps.append(log.timestamp)
+        # Plotly does not convert the timestamp to the local timezone
+        # so we need to do it manually.
+        timestamps.append(log.timestamp.astimezone())
         latencies.append(log.latency)
 
     kernel_size = int(os.getenv("OW_LATENCY_PLOT_SMOOTHING", "60"))
     timestamps, latencies = smooth_plots(timestamps, latencies, kernel_size)
 
-    #plt.plot(timestamps, latencies)
-    #plt.title(f"{service.name} Latency Plot")
-    #plt.ylabel("Latency (ms)")
-    fig = px.line(x=timestamps, y=latencies, title=f"{service.name} Latency Plot", labels={"x": "Date", "y": "Latency (ms)"})
-    return fig
+    if timestamps:
+        fig = px.line(x=timestamps, y=latencies, title=f"{service.name} Latency Plot",
+                  labels={"x": "Date", "y": "Latency (ms)"})
+        return fig.to_html(full_html=False, include_plotlyjs=static("js/plotly-2.32.0.min.js"))
+    else:
+        return "<p>No data available</p>"
 
 
-
-def plot_disk_service(name: str, type: str):
+def plot_disk_service(name: str, type: str) -> str:
     service = DiskService.objects.get(name=name, type=type)
 
     start_date = make_aware(
@@ -81,15 +81,20 @@ def plot_disk_service(name: str, type: str):
     timestamps = []
     availability = []
     for log in logs:
-        timestamps.append(log.timestamp)
+        # Plotly does not convert the timestamp to the local timezone
+        # so we need to do it manually.
+        timestamps.append(log.timestamp.astimezone())
         availability.append(int(log.used_space) / 10 ** 9)
 
     kernel_size = int(os.getenv("OW_DISK_PLOT_SMOOTHING", "60"))
     timestamps, availability = smooth_plots(timestamps, availability, kernel_size)
 
-    plt.plot(timestamps, availability)
-    plt.title(f"{service.name} Used Space Plot")
-    plt.ylabel("Used Space (GB)")
+    if timestamps:
+        fig = px.line(x=timestamps, y=availability, title=f"{service.name} Used Space Plot",
+                  labels={"x": "Date", "y": "Used Space (GB)"})
+        return fig.to_html(full_html=False, include_plotlyjs=static("js/plotly-2.32.0.min.js"))
+    else:
+        return "<p>No data available</p>"
 
 
 @login_required
@@ -100,22 +105,11 @@ def latency_plot(request):
     if type is None or name is None:
         return HttpResponse(status=400)
 
-    
     if type == "disk":
-        plt.figure(figsize=(10, 5))
-        plt.rcParams["font.size"] = 12
-        plot_disk_service(name, type)
-        plt.xlabel("Date")
-
-        svg_str = io.BytesIO()
-        plt.savefig(svg_str, format="svg")
-        plt.close()
-
-        return HttpResponse(svg_str.getvalue(), content_type="image/svg+xml")
+        fig = plot_disk_service(name, type)
     else:
         fig = plot_network_service(name, type)
-        return HttpResponse(fig.to_html(full_html=False), content_type="text/html")
-    
+    return HttpResponse(fig, content_type="text/html")
 
 
 def get_data_as_table():
